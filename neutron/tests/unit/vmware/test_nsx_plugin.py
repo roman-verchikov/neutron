@@ -788,7 +788,9 @@ class TestL3NatTestCase(L3NatTest,
                 'tenant_id': '',
                 'port_security_enabled': False,
                 'shared': False,
-                'id': mock.ANY
+                'id': mock.ANY,
+                'dhcp_relay_ip': None,
+                'dns_relay_ip': None
             }
             f.assert_called_once_with(mock.ANY, expected_meta_net)
         self._metadata_teardown()

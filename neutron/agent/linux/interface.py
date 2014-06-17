@@ -57,6 +57,9 @@ OPTS = [
                help=_("The type of authentication to use")),
     cfg.StrOpt('auth_region',
                help=_("Authentication region")),
+    cfg.IntOpt('interface_dev_name_len',
+               default=14,
+               help=_("Maximum interace name length")),
 ]
 
 
@@ -120,7 +123,8 @@ class LinuxInterfaceDriver(object):
             raise exceptions.BridgeDoesNotExist(bridge=bridge)
 
     def get_device_name(self, port):
-        return (self.DEV_NAME_PREFIX + port.id)[:self.DEV_NAME_LEN]
+        return ((self.DEV_NAME_PREFIX + port.id)
+                [:self.conf.interface_dev_name_len])
 
     @abc.abstractmethod
     def plug(self, network_id, port_id, device_name, mac_address,

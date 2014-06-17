@@ -3838,7 +3838,9 @@ class DbModelTestCase(base.BaseTestCase):
         exp_middle = "[object at %x]" % id(network)
         exp_end_with = (" {tenant_id=None, id=None, "
                         "name='net_net', status='OK', "
-                        "admin_state_up=True, shared=None}>")
+                        "admin_state_up=True, shared=None, "
+                        "dns_relay_ip=None, "
+                        "dhcp_relay_ip=None}>")
         final_exp = exp_start_with + exp_middle + exp_end_with
         self.assertEqual(actual_repr_output, final_exp)
 

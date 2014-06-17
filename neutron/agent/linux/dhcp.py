@@ -906,3 +906,28 @@ class DeviceManager(object):
 
         self.plugin.release_dhcp_port(network.id,
                                       self.get_device_id(network))
+
+    def setup_relay(self, network, iface_name, mac_address, relay_bridge):
+        if ip_lib.device_exists(iface_name,
+                                self.root_helper,
+                                network.namespace):
+            LOG.debug(_('Reusing existing device: %s.'), iface_name)
+        else:
+            self.driver.plug(network.id,
+                             network.id,
+                             iface_name,
+                             mac_address,
+                             namespace=network.namespace,
+                             bridge=relay_bridge)
+            dhcp_client_cmd = [self.conf.dhclient_path, iface_name]
+
+            if network.namespace:
+                ip_wrapper = ip_lib.IPWrapper(self.root_helper,
+                                              network.namespace)
+                ip_wrapper.netns.execute(dhcp_client_cmd)
+            else:
+                utils.execute(dhcp_client_cmd, self.root_helper)
+
+    def destroy_relay(self, network, device_name, relay_bridge):
+        self.driver.unplug(device_name, namespace=network.namespace,
+                           bridge=relay_bridge)

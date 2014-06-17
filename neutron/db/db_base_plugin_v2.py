@@ -916,6 +916,8 @@ class NeutronDbPluginV2(neutron_plugin_base_v2.NeutronPluginBaseV2,
                'admin_state_up': network['admin_state_up'],
                'status': network['status'],
                'shared': network['shared'],
+               'dhcp_relay_ip': network.get('dhcp_relay_ip'),
+               'dns_relay_ip': network.get('dns_relay_ip'),
                'subnets': [subnet['id']
                            for subnet in network['subnets']]}
         # Call auxiliary extend functions, if any
