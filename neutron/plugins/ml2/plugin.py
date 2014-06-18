@@ -492,6 +492,10 @@ class Ml2Plugin(db_base_plugin_v2.NeutronDbPluginV2,
                         LOG.debug(_("Deleting network record %s"), record)
                         session.delete(record)
 
+                        if cfg.CONF.use_ddi:
+                            manager.NeutronManager.get_ddi().delete_network(
+                                context, record)
+
                         for segment in mech_context.network_segments:
                             self.type_manager.release_segment(session, segment)
 
@@ -602,6 +606,10 @@ class Ml2Plugin(db_base_plugin_v2.NeutronDbPluginV2,
                     LOG.debug(_("Deleting subnet record"))
                     record = self._get_subnet(context, id)
                     session.delete(record)
+
+                    if cfg.CONF.use_ddi:
+                        manager.NeutronManager.get_ddi().delete_subnet(
+                            context, record)
 
                     LOG.debug(_("Committing transaction"))
                     break

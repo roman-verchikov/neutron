@@ -122,6 +122,10 @@ class NeutronManager(object):
         # the rest of service plugins
         self.service_plugins = {constants.CORE: self.plugin}
         self._load_service_plugins()
+        # Load DDI driver
+        ddi_driver_class_name = cfg.CONF.ddi_driver
+        ddi_driver_class = importutils.import_class(ddi_driver_class_name)
+        self.ddi = ddi_driver_class()
 
     def _get_plugin_instance(self, namespace, plugin_provider):
         try:
@@ -222,3 +226,7 @@ class NeutronManager(object):
         # Return weakrefs to minimize gc-preventing references.
         return dict((x, weakref.proxy(y))
                     for x, y in cls.get_instance().service_plugins.iteritems())
+
+    @classmethod
+    def get_ddi(cls):
+        return cls.get_instance().ddi
