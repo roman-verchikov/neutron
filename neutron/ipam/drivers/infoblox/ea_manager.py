@@ -25,7 +25,8 @@ LOG = logging.getLogger(__name__)
 
 
 class InfobloxEaManager(object):
-    OPENSTACK_OBJECT_FLAG = 'is_openstack_object'
+    # CMP == cloud management platform
+    OPENSTACK_OBJECT_FLAG = 'cmp_type'
 
     def __init__(self, infoblox_db):
         # Passing this thru constructor to avoid cyclic imports
@@ -110,7 +111,7 @@ class InfobloxEaManager(object):
 
     @classmethod
     def add_openstack_extattrs_marker(cls, extattrs):
-        extattrs[cls.OPENSTACK_OBJECT_FLAG] = {'value': 'True'}
+        extattrs[cls.OPENSTACK_OBJECT_FLAG] = {'value': 'openstack'}
 
 
 def _construct_extattrs(filters):
