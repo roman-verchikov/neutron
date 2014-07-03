@@ -76,14 +76,12 @@ class InfobloxIPAMController(neutron_ipam.NeutronIPAMController):
                             'nameservers': nameservers,
                             'network_extattrs': network_extattrs}
 
-        net = self._get_network(context, subnet['network_id'])
         if not cfg.is_external and cfg.require_dhcp_relay:
-            net.update(dict(dns_relay_ip=dns_member.ip,
-                            dhcp_relay_ip=dhcp_member.ip))
+            network.update(dict(dns_relay_ip=dns_member.ip,
+                                dhcp_relay_ip=dhcp_member.ip))
 
         if cfg.requires_net_view():
-            create_subnet_flow.add(
-                tasks.CreateNetViewTask())
+            create_subnet_flow.add(tasks.CreateNetViewTask())
 
         if cfg.network_template:
             method_arguments['template'] = cfg.network_template
