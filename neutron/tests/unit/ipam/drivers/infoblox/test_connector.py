@@ -139,7 +139,7 @@ class TestInfobloxConnector(base.BaseTestCase):
             self.connector.get_object(objtype, payload, extattrs=extattrs)
             patched_get.assert_called_once_with(
                 'https://infoblox.example.org/wapi/'
-                'v1.1/network?*os_subnet_id:=fake_subnet_id',
+                'v1.1/network?*os_subnet_id=fake_subnet_id',
                 data='{"ip": "0.0.0.0"}',
                 headers={'Content-type': 'application/json'},
                 verify=False

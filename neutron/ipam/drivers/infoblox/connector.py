@@ -86,7 +86,7 @@ class Infoblox(object):
         if extattrs:
             attrs_queries = []
             for key, value in extattrs.items():
-                attrs_queries.append('*' + key + ':=' + value['value'])
+                attrs_queries.append('*' + key + '=' + value['value'])
             query += '&'.join(attrs_queries)
         if query_params:
             if len(query) > 1:
@@ -126,9 +126,12 @@ class Infoblox(object):
             query_params['_return_fields'] = ','.join(return_fields)
 
         headers = {'Content-type': 'application/json'}
-        r = self.session.get(self._construct_url(objtype, query_params,
-                                                 extattrs),
-                             data=jsonutils.dumps(payload),
+
+        data = jsonutils.dumps(payload)
+        url = self._construct_url(objtype, query_params, extattrs)
+
+        r = self.session.get(url,
+                             data=data,
                              verify=self.sslverify,
                              headers=headers)
 
