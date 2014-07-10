@@ -370,6 +370,20 @@ class ConfigTestCase(base.BaseTestCase):
 
         self.assertThat(cfg.dns_view, matchers.Equals(cfg.network_view))
 
+    def test_configured_value_is_returned_for_dns_view(self):
+        context = mock.Mock()
+        subnet = mock.Mock()
+        member_manager = mock.Mock()
+
+        expected_dns_view = 'some-dns-view'
+        conf_dict = {
+            'condition': 'global',
+            'dns_view': expected_dns_view
+        }
+
+        cfg = config.Config(conf_dict, context, subnet, member_manager)
+        self.assertEqual(cfg.dns_view, expected_dns_view)
+
 
 class MemberManagerTestCase(base.BaseTestCase):
     def test_raises_error_if_no_config_file(self):
