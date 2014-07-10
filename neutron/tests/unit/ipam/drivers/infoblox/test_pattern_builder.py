@@ -15,8 +15,8 @@
 
 import mock
 
-from neutron.ddi.drivers.infoblox import config
-from neutron.ddi.drivers.infoblox import exceptions
+from neutron.ipam.drivers.infoblox import config
+from neutron.ipam.drivers.infoblox import exceptions
 from neutron.tests import base
 
 

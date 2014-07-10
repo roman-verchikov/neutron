@@ -20,7 +20,7 @@ import requests
 import urllib
 import urlparse
 
-from neutron.ddi.drivers.infoblox import exceptions as exc
+from neutron.ipam.drivers.infoblox import exceptions as exc
 from neutron.openstack.common import jsonutils
 from neutron.openstack.common import log as logging
 

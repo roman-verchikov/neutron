@@ -17,7 +17,7 @@
 
 import mock
 from mock import patch
-from neutron.ddi import base as ddi_base
+from neutron.ipam import base as ipam_base
 from neutron.tests import base
 
 
@@ -51,50 +51,50 @@ class FakeContext(object):
         return elevated
 
 
-class FakeDDI(ddi_base.DDI):
+class FakeIPAM(ipam_base.IPAM):
     def __init__(self):
         self.ipam_controller = mock.MagicMock()
         self.dns_controller = mock.MagicMock()
         self.dhcp_controller = mock.MagicMock()
 
 
-class TestDDI(base.BaseTestCase):
+class TestIPAM(base.BaseTestCase):
     def setUp(self):
-        super(TestDDI, self).setUp()
+        super(TestIPAM, self).setUp()
         self.context = FakeContext()
-        self.ddi_driver = FakeDDI()
+        self.ipam_driver = FakeIPAM()
 
     def tearDown(self):
-        super(TestDDI, self).tearDown()
+        super(TestIPAM, self).tearDown()
 
-    @patch.object(ddi_base.DDI, '_get_subnet_dns_params',
+    @patch.object(ipam_base.IPAM, '_get_subnet_dns_params',
                   return_value='subnet_dns_params')
-    @patch.object(ddi_base.DDI, '_get_subnet_dhcp_params',
+    @patch.object(ipam_base.IPAM, '_get_subnet_dhcp_params',
                   return_value='subnet_dhcp_params')
     def test_create_subnet(self, subnet_dns_params, subnet_dhcp_params):
-        with patch.object(self.ddi_driver.ipam_controller, 'create_subnet',
+        with patch.object(self.ipam_driver.ipam_controller, 'create_subnet',
                           return_value=SUBNET) as mock_create_subnet:
-            with patch.object(self.ddi_driver.dhcp_controller,
+            with patch.object(self.ipam_driver.dhcp_controller,
                               'configure_dhcp',
                               return_value=None) as mock_configure_dhcp:
-                self.ddi_driver.create_subnet(self.context, SUBNET)
+                self.ipam_driver.create_subnet(self.context, SUBNET)
                 mock_create_subnet.assert_called_with(
                     self.context, SUBNET)
                 mock_configure_dhcp.assert_called_with(
                     self.context, SUBNET, 'subnet_dhcp_params')
 
-    @patch.object(ddi_base.DDI, '_get_subnet_dns_params',
+    @patch.object(ipam_base.IPAM, '_get_subnet_dns_params',
                   return_value='subnet_dns_params')
-    @patch.object(ddi_base.DDI, '_get_subnet_dhcp_params',
+    @patch.object(ipam_base.IPAM, '_get_subnet_dhcp_params',
                   return_value='subnet_dhcp_params')
     def test_update_subnet(self, subnet_dns_params, subnet_dhcp_params):
-        with patch.object(self.ddi_driver.ipam_controller, 'update_subnet',
+        with patch.object(self.ipam_driver.ipam_controller, 'update_subnet',
                           return_value=SUBNET) as mock_update_subnet:
-            with patch.object(self.ddi_driver.dhcp_controller,
+            with patch.object(self.ipam_driver.dhcp_controller,
                               'reconfigure_dhcp',
                               return_value=None) as mock_reconfigure_dhcp:
 
-                self.ddi_driver.update_subnet(self.context,
+                self.ipam_driver.update_subnet(self.context,
                                               SUBNET['id'], SUBNET)
                 mock_update_subnet.assert_called_with(
                     self.context, SUBNET['id'], SUBNET)
@@ -102,22 +102,22 @@ class TestDDI(base.BaseTestCase):
                     self.context, SUBNET, 'subnet_dhcp_params')
 
     def _delete_subnet_by_id(self):
-        with patch.object(self.ddi_driver.ipam_controller, 'delete_subnet',
+        with patch.object(self.ipam_driver.ipam_controller, 'delete_subnet',
                           return_value=SUBNET['id']) as mock_delete_subnet:
-            with patch.object(self.ddi_driver.ipam_controller,
+            with patch.object(self.ipam_driver.ipam_controller,
                               'get_subnet_by_id',
                               return_value=SUBNET) as mock_get_subnet_by_id:
-                with patch.object(self.ddi_driver.ipam_controller,
+                with patch.object(self.ipam_driver.ipam_controller,
                                   'get_subnet_ports',
                                   return_value=[]) as mock_get_subnet_ports:
                     with patch.object(
-                            self.ddi_driver.ipam_controller,
+                            self.ipam_driver.ipam_controller,
                             'force_off_ports',
                             return_value=None) as mock_force_off_ports:
                             with patch.object(
-                                    self.ddi_driver.dhcp_controller,
+                                    self.ipam_driver.dhcp_controller,
                                     'disable_dhcp') as mock_disable_dhcp:
-                                self.ddi_driver.delete_subnet(self.context,
+                                self.ipam_driver.delete_subnet(self.context,
                                                               SUBNET['id'])
                                 mock_get_subnet_by_id.assert_called_with(
                                     self.context, SUBNET['id'])
@@ -131,21 +131,21 @@ class TestDDI(base.BaseTestCase):
                                     self.context, SUBNET)
 
     def test_get_subnet_by_id(self):
-        with patch.object(self.ddi_driver.ipam_controller,
+        with patch.object(self.ipam_driver.ipam_controller,
                           'get_subnet_by_id') as mock_get_subnet_by_id:
-            self.ddi_driver.get_subnet_by_id(self.context, SUBNET['id'])
+            self.ipam_driver.get_subnet_by_id(self.context, SUBNET['id'])
             mock_get_subnet_by_id.assert_called_with(self.context,
                                                      SUBNET['id'])
 
     def test_allocate_ip(self):
-        with patch.object(self.ddi_driver.ipam_controller, 'allocate_ip',
+        with patch.object(self.ipam_driver.ipam_controller, 'allocate_ip',
                           return_value='ip_object') as mock_allocate_ip:
-            with patch.object(self.ddi_driver.ipam_controller,
+            with patch.object(self.ipam_driver.ipam_controller,
                               'get_subnet_by_id',
                               return_value=SUBNET) as mock_get_subnet_by_id:
-                with patch.object(self.ddi_driver.dhcp_controller, 'bind_mac',
+                with patch.object(self.ipam_driver.dhcp_controller, 'bind_mac',
                                   return_value=SUBNET) as mock_bind_mac:
-                    self.ddi_driver.allocate_ip(self.context, HOST, IP)
+                    self.ipam_driver.allocate_ip(self.context, HOST, IP)
                     mock_get_subnet_by_id.assert_called_with(self.context,
                                                              SUBNET['id'])
                     mock_allocate_ip.assert_called_with(
@@ -155,14 +155,14 @@ class TestDDI(base.BaseTestCase):
                         'ip_object', HOST['mac_address'])
 
     def test_deallocate_ip(self):
-        with patch.object(self.ddi_driver.ipam_controller, 'deallocate_ip',
+        with patch.object(self.ipam_driver.ipam_controller, 'deallocate_ip',
                           return_value='ip_object') as mock_deallocate_ip:
-            with patch.object(self.ddi_driver.ipam_controller,
+            with patch.object(self.ipam_driver.ipam_controller,
                               'get_subnet_by_id',
                               return_value=SUBNET) as mock_get_subnet_by_id:
-                with patch.object(self.ddi_driver.dhcp_controller,
+                with patch.object(self.ipam_driver.dhcp_controller,
                                   'unbind_mac') as mock_unbind_mac:
-                    self.ddi_driver.deallocate_ip(self.context, HOST, IP)
+                    self.ipam_driver.deallocate_ip(self.context, HOST, IP)
                     mock_get_subnet_by_id.assert_called_with(self.context,
                                                              SUBNET['id'])
                     mock_unbind_mac.assert_called_with(
@@ -172,33 +172,33 @@ class TestDDI(base.BaseTestCase):
 
     def test_get_subnets_by_network(self):
         with patch.object(
-                self.ddi_driver.ipam_controller,
+                self.ipam_driver.ipam_controller,
                 'get_subnets_by_network') as mock_get_subnets_by_network:
-            self.ddi_driver.get_subnets_by_network(self.context, NETWORK_ID)
+            self.ipam_driver.get_subnets_by_network(self.context, NETWORK_ID)
             mock_get_subnets_by_network.assert_called_with(self.context,
                                                            NETWORK_ID)
 
     def test_get_all_subnets(self):
-        with patch.object(self.ddi_driver.ipam_controller,
+        with patch.object(self.ipam_driver.ipam_controller,
                           'get_all_subnets') as mock_get_all_subnets:
-            self.ddi_driver.get_all_subnets(self.context)
+            self.ipam_driver.get_all_subnets(self.context)
             mock_get_all_subnets.assert_called_with(self.context)
 
     def test_get_subnets(self):
-        with patch.object(self.ddi_driver.ipam_controller,
+        with patch.object(self.ipam_driver.ipam_controller,
                           'get_subnets') as mock_get_subnets:
-            self.ddi_driver.get_subnets(self.context)
+            self.ipam_driver.get_subnets(self.context)
             mock_get_subnets.assert_called_with(self.context, None, None,
                                                 None, None, None, False)
 
     def test_get_subnets_count(self):
-        with patch.object(self.ddi_driver.ipam_controller,
+        with patch.object(self.ipam_driver.ipam_controller,
                           'get_subnets_count') as mock_get_subnets_count:
-            self.ddi_driver.get_subnets_count(self.context)
+            self.ipam_driver.get_subnets_count(self.context)
             mock_get_subnets_count.assert_called_with(self.context, None)
 
     def test_delete_network(self):
-        with patch.object(self.ddi_driver.ipam_controller,
+        with patch.object(self.ipam_driver.ipam_controller,
                           'delete_network') as mock_delete_network:
-            self.ddi_driver.delete_network(self.context, NETWORK_ID)
+            self.ipam_driver.delete_network(self.context, NETWORK_ID)
             mock_delete_network.assert_called_with(self.context, NETWORK_ID)

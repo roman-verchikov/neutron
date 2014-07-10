@@ -15,7 +15,7 @@
 
 import mock
 
-from neutron.ddi.drivers.infoblox import ip_allocator
+from neutron.ipam.drivers.infoblox import ip_allocator
 from neutron.tests import base
 
 

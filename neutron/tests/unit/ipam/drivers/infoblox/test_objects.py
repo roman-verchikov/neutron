@@ -16,7 +16,7 @@
 import json
 from testtools import matchers
 
-from neutron.ddi.drivers.infoblox import objects
+from neutron.ipam.drivers.infoblox import objects
 from neutron.tests import base
 
 

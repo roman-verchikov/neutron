@@ -214,7 +214,7 @@ class IPAMController(BackendController):
         pass
 
 
-class DDI(BackendController):
+class IPAM(BackendController):
     def _get_subnet_info(self, subnet):
         return subnet
 
@@ -277,7 +277,7 @@ class DDI(BackendController):
             backend_subnet,
             host,
             ip.get('ip_address', None))
-        LOG.debug('DDI allocate IP: %s' % ip_address)
+        LOG.debug('IPAM allocate IP: %s' % ip_address)
         mac_address = host['mac_address']
         self.dhcp_controller.bind_mac(
             context,

@@ -19,8 +19,8 @@ import mock
 from mock import patch
 import requests
 
-from neutron.ddi.drivers.infoblox.exceptions import InfobloxIsMisconfigured
-from neutron.ddi.drivers.infoblox import connector
+from neutron.ipam.drivers.infoblox.exceptions import InfobloxIsMisconfigured
+from neutron.ipam.drivers.infoblox import connector
 from neutron.tests import base
 
 

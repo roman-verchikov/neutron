@@ -20,9 +20,9 @@ import mock
 from testtools import matchers
 
 from neutron.tests import base
-from neutron.ddi.drivers.infoblox import config
-from neutron.ddi.drivers.infoblox import exceptions
-from neutron.ddi.drivers.infoblox import objects
+from neutron.ipam.drivers.infoblox import config
+from neutron.ipam.drivers.infoblox import exceptions
+from neutron.ipam.drivers.infoblox import objects
 from neutron.db.infoblox import infoblox_db
 
 

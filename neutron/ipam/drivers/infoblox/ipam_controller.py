@@ -18,12 +18,12 @@ from taskflow.patterns import linear_flow
 
 from neutron.openstack.common import log as logging
 from neutron.db.infoblox import infoblox_db
-from neutron.ddi.drivers import neutron_ddi
-from neutron.ddi.drivers.infoblox import config
-from neutron.ddi.drivers.infoblox import dns_controller
-from neutron.ddi.drivers.infoblox import exceptions
-from neutron.ddi.drivers.infoblox import tasks
-from neutron.ddi.drivers.infoblox import ea_manager
+from neutron.ipam.drivers import neutron_ipam
+from neutron.ipam.drivers.infoblox import config
+from neutron.ipam.drivers.infoblox import dns_controller
+from neutron.ipam.drivers.infoblox import exceptions
+from neutron.ipam.drivers.infoblox import tasks
+from neutron.ipam.drivers.infoblox import ea_manager
 
 
 OPTS = [
@@ -37,7 +37,7 @@ neutron_conf.CONF.register_opts(OPTS)
 LOG = logging.getLogger(__name__)
 
 
-class InfobloxIPAMController(neutron_ddi.NeutronIPAMController):
+class InfobloxIPAMController(neutron_ipam.NeutronIPAMController):
     def __init__(self, obj_manip=None, config_finder=None, ip_allocator=None):
         """IPAM backend implementation for Infoblox"""
         self.infoblox = obj_manip
@@ -191,7 +191,7 @@ class InfobloxIPAMController(neutron_ddi.NeutronIPAMController):
                     netview=networkview_name, cidr=subnet['cidr'])
 
         # TODO(max_lobur): As kind of optimisation we could mark IP as used by
-        # neutron_ddi._allocate_specific_ip, to prevent poking already empty
+        # neutron_ipam._allocate_specific_ip, to prevent poking already empty
         # ranges.
         LOG.debug('IP address allocated on Infoblox NIOS: %s', allocated_ip)
         return allocated_ip
@@ -215,7 +215,7 @@ class InfobloxIPAMController(neutron_ddi.NeutronIPAMController):
                 continue
             if not net.has_dns_members():
                 LOG.debug("No domain-name-servers option found, it will"
-                          "not be updated to the private DDI relay IP.")
+                          "not be updated to the private IPAM relay IP.")
                 continue
             if cfg.require_dhcp_relay:
                 net.update_member_ip_in_dns_nameservers(ip['ip_address'])

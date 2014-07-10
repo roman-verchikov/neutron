@@ -40,7 +40,7 @@ class InfobloxNoConfigFoundForSubnet(exceptions.NeutronException):
 
 
 class InfobloxIsMisconfigured(exceptions.NeutronException):
-    message = _("Infoblox DDI is misconfigured: infoblox_wapi, "
+    message = _("Infoblox IPAM is misconfigured: infoblox_wapi, "
                 "infoblox_username and infoblox_password must be defined.")
 
 

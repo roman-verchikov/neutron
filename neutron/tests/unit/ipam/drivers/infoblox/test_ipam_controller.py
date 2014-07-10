@@ -18,10 +18,10 @@ import mock
 import taskflow.engines
 
 from neutron.db.infoblox import infoblox_db as infoblox_db
-from neutron.ddi.drivers.infoblox import exceptions as ib_exceptions
-from neutron.ddi.drivers.infoblox import infoblox_ddi
-from neutron.ddi.drivers.infoblox import ipam_controller
-from neutron.ddi.drivers.infoblox import objects
+from neutron.ipam.drivers.infoblox import exceptions as ib_exceptions
+from neutron.ipam.drivers.infoblox import infoblox_ipam
+from neutron.ipam.drivers.infoblox import ipam_controller
+from neutron.ipam.drivers.infoblox import objects
 from neutron.tests import base
 
 
@@ -60,8 +60,8 @@ class CreateSubnetTestCases(base.BaseTestCase):
         self.object_manipulator = mock.Mock()
         ip_allocator = mock.Mock()
         config_finder = mock.Mock()
-        context = infoblox_ddi.FlowContext(mock.MagicMock(),
-                                           'create-subnet')
+        context = infoblox_ipam.FlowContext(mock.MagicMock(),
+                                            'create-subnet')
 
         b = ipam_controller.InfobloxIPAMController(self.object_manipulator,
                                                    config_finder,
@@ -90,7 +90,7 @@ class UpdateSubnetTestCase(base.BaseTestCase):
         self.context = mock.Mock()
         ip_allocator = mock.Mock()
         config_finder = mock.Mock()
-        self.ddi = ipam_controller.InfobloxIPAMController(
+        self.ipam = ipam_controller.InfobloxIPAMController(
             self.object_manipulator, config_finder, ip_allocator)
 
         self.sub_id = 'fake-id'
@@ -106,7 +106,7 @@ class UpdateSubnetTestCase(base.BaseTestCase):
     @mock.patch.object(infoblox_db, 'get_subnet_dhcp_port_address',
                        mock.Mock(return_value=None))
     def test_update_subnet_dns_no_primary_ip(self):
-        self.ddi.update_subnet(self.context, self.sub_id, self.sub)
+        self.ipam.update_subnet(self.context, self.sub_id, self.sub)
 
         self.assertEqual(self.new_nameservers, self.ib_net.dns_nameservers)
         self.object_manipulator.update_network_options.assert_called_once_with(
@@ -119,7 +119,7 @@ class UpdateSubnetTestCase(base.BaseTestCase):
         self.ib_net.member_ip_addr = 'member-ip'
         self.ib_net.dns_nameservers = ['member-ip', 'old_serv1', 'old_serv']
 
-        self.ddi.update_subnet(self.context, self.sub_id, self.sub)
+        self.ipam.update_subnet(self.context, self.sub_id, self.sub)
 
         self.assertEqual(['member-ip'] + self.new_nameservers,
                          self.ib_net.dns_nameservers)
@@ -135,7 +135,7 @@ class UpdateSubnetTestCase(base.BaseTestCase):
 
         infoblox_db.get_subnet_dhcp_port_address.return_value = 'relay-ip'
 
-        self.ddi.update_subnet(self.context, self.sub_id, self.sub)
+        self.ipam.update_subnet(self.context, self.sub_id, self.sub)
 
         self.assertEqual(['relay-ip'] + self.new_nameservers,
                          self.ib_net.dns_nameservers)
@@ -392,7 +392,7 @@ class CreateSubnetFlowTestCase(base.BaseTestCase):
         self.infoblox = mock.Mock()
         member_conf = mock.MagicMock()
         ip_allocator = mock.Mock()
-        self.context = infoblox_ddi.FlowContext(mock.MagicMock(),
+        self.context = infoblox_ipam.FlowContext(mock.MagicMock(),
                                                 'create-subnet')
         self.subnet = {'cidr': '192.168.0.0/24',
                        'tenant_id': 'some-id',

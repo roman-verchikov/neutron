@@ -1,7 +1,7 @@
 # Copyright 2014 OpenStack LLC.
 # All Rights Reserved.
 #
-#    Licensed under the Apache License, Version 2.0 (the "License"); you may
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
 #    a copy of the License at
 #
@@ -16,8 +16,8 @@
 from oslo.config import cfg
 
 from neutron.db import models_v2, db_base_plugin_v2
-from neutron.ddi.drivers.infoblox import exceptions
-from neutron.ddi.drivers.infoblox import connector
+from neutron.ipam.drivers.infoblox import exceptions
+from neutron.ipam.drivers.infoblox import connector
 from neutron.openstack.common import uuidutils
 from neutron.openstack.common import log as logging
 
@@ -41,7 +41,7 @@ class InfobloxEaManager(object):
 
         os_network_id = network['id']
         os_network_is_shared = network['shared']
-        os_network_l2_info = self._network_l2_info_provider.\
+        os_network_l2_info = self._network_l2_info_provider. \
             get_network_l2_info(context.session, os_network_id)
         os_network_type = os_network_l2_info['network_type']
         os_segmentation_id = os_network_l2_info['segmentation_id']
@@ -183,8 +183,8 @@ def port_extattrs_result_filter_hook(query, filters):
         query, filters, models_v2.Port, 'port', ib_objtype, 'os_port_id')
 
 
-if (cfg.CONF.use_ddi and cfg.CONF.ddi_driver ==
-    'neutron.ddi.drivers.infoblox.infoblox_ddi.InfobloxDDI'):
+if (cfg.CONF.use_ipam and cfg.CONF.ipam_driver ==
+    'neutron.ipam.drivers.infoblox.infoblox_ipam.InfobloxIPAM'):
 
     db_base_plugin_v2.NeutronDbPluginV2.register_model_query_hook(
         models_v2.Port, 'port_extattrs', None, None,
@@ -195,5 +195,5 @@ if (cfg.CONF.use_ddi and cfg.CONF.ddi_driver ==
         network_extattrs_result_filter_hook)
 
     db_base_plugin_v2.NeutronDbPluginV2.register_model_query_hook(
-    models_v2.Subnet, 'subnet_extattrs', None, None,
-    subnet_extattrs_result_filter_hook)
+        models_v2.Subnet, 'subnet_extattrs', None, None,
+        subnet_extattrs_result_filter_hook)

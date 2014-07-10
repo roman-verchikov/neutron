@@ -124,7 +124,7 @@ class TestBase(base.BaseTestCase):
         self.mock_mgr = instance.start()
         self.conf(args=args)
         self.conf.set_override('state_path', '')
-        self.conf.ddi_proxy_bridge = 'br-dhcp'
+        self.conf.ipam_proxy_bridge = 'br-dhcp'
 
         self.replace_p = mock.patch('neutron.agent.linux.utils.replace_file')
         self.execute_p = mock.patch('neutron.agent.linux.utils.execute')
@@ -167,7 +167,7 @@ class TestDnsDhcpProxy(TestBase):
                           self.network)
 
     def test_create_instance_no_relay_bridge(self):
-        self.conf.ddi_proxy_bridge = None
+        self.conf.ipam_proxy_bridge = None
         self.assertRaises(exc.InvalidConfigurationOption,
                           dns_dhcp_proxy.DnsDhcpProxy,
                           self.conf,
@@ -346,7 +346,7 @@ class TestDnsDhcpProxy(TestBase):
                 self.network,
                 'tap-relay77777',
                 '77:77:77:77:77:77',
-                self.conf.ddi_proxy_bridge)
+                self.conf.ipam_proxy_bridge)
             dr.device_manager.setup.assert_called_once_with(
                 self.network,
                 reuse_existing=True)
@@ -380,7 +380,7 @@ class TestDnsDhcpProxy(TestBase):
                 self.network,
                 'tap-relay77777',
                 '77:77:77:77:77:77',
-                self.conf.ddi_proxy_bridge)
+                self.conf.ipam_proxy_bridge)
             dr.device_manager.setup.assert_called_once_with(
                 self.network,
                 reuse_existing=True)
@@ -441,7 +441,7 @@ class TestDnsDhcpProxy(TestBase):
             dr.device_manager.destroy_relay.assert_called_once_with(
                 self.network,
                 'tap-relay77777',
-                self.conf.ddi_proxy_bridge)
+                self.conf.ipam_proxy_bridge)
             mocks['_remove_config_files'].assert_any_call()
 
     def test_generate_mac(self):

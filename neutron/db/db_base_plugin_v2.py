@@ -54,7 +54,7 @@ AUTO_DELETE_PORT_OWNERS = [constants.DEVICE_OWNER_DHCP]
 
 
 @six.add_metaclass(abc.ABCMeta)
-class NeutronDbPluginV2DDIPrivateBase(object):
+class NeutronDbPluginV2IPAMPrivateBase(object):
 
     @abc.abstractmethod
     def _allocate_fixed_ips(self, context, network, fixed_ips, port=None):
@@ -246,7 +246,7 @@ class CommonDbMixin(object):
 
 class NeutronDbPluginV2Impl(neutron_plugin_base_v2.NeutronPluginBaseV2,
                             CommonDbMixin,
-                            NeutronDbPluginV2DDIPrivateBase):
+                            NeutronDbPluginV2IPAMPrivateBase):
     """V2 Neutron plugin interface implementation using SQLAlchemy models.
 
     Whenever a non-read call happens the plugin will call an event handler
@@ -1667,11 +1667,11 @@ class NeutronDbPluginV2Impl(neutron_plugin_base_v2.NeutronPluginBaseV2,
                     raise n_exc.DeviceIDNotOwnedByTenant(device_id=device_id)
 
 
-class NeutronDbPluginV2DDI(NeutronDbPluginV2Impl):
+class NeutronDbPluginV2IPAM(NeutronDbPluginV2Impl):
 
     @property
-    def ddi(self):
-        return manager.NeutronManager.get_ddi()
+    def ipam(self):
+        return manager.NeutronManager.get_ipam()
 
     def _allocate_fixed_ips(self, context, network, fixed_ips, port=None):
         ips = []
@@ -1683,7 +1683,7 @@ class NeutronDbPluginV2DDI(NeutronDbPluginV2Impl):
             ip_address = fixed.get('ip_address', None)
             ip = dict(subnet_id=subnet_id,
                       ip_address=ip_address)
-            ip_address = self.ddi.allocate_ip(context, host, ip)
+            ip_address = self.ipam.allocate_ip(context, host, ip)
             if ip_address:
                 ip['ip_address'] = ip_address
                 ips.append(ip)
@@ -1718,15 +1718,15 @@ class NeutronDbPluginV2DDI(NeutronDbPluginV2Impl):
 
         for ip in original_ips:
             LOG.debug(_("Port update. Hold %s"), ip)
-            NeutronDbPluginV2DDI._delete_ip_allocation(context,
-                                                       network_id,
-                                                       ip['subnet_id'],
-                                                       ip['ip_address'])
+            NeutronDbPluginV2IPAM._delete_ip_allocation(context,
+                                                        network_id,
+                                                        ip['subnet_id'],
+                                                        ip['ip_address'])
             port = self._get_port(context, port_id)
             host = dict(name=(port.get('id') or uuidutils.generate_uuid()),
                         mac_address=port['mac_address'],
                         tenant_name=port.get('tenant_name', None))
-            self.ddi.deallocate_ip(context, host, ip)
+            self.ipam.deallocate_ip(context, host, ip)
 
         if to_add:
             LOG.debug(_("Port update. Adding %s"), to_add)
@@ -1808,7 +1808,7 @@ class NeutronDbPluginV2DDI(NeutronDbPluginV2Impl):
             self._validate_gw_out_of_pools(s["gateway_ip"],
                                            allocation_pools)
 
-        subnet, dhcp_changes = self.ddi.update_subnet(context, id, s)
+        subnet, dhcp_changes = self.ipam.update_subnet(context, id, s)
 
         result = self._make_subnet_dict(subnet)
         # Keep up with fields that changed
@@ -1819,26 +1819,26 @@ class NeutronDbPluginV2DDI(NeutronDbPluginV2Impl):
         return result
 
     def create_subnet(self, context, subnet):
-        s = super(NeutronDbPluginV2DDI, self).create_subnet(context, subnet)
-        self.ddi.create_subnet(context, subnet['subnet'])
+        s = super(NeutronDbPluginV2IPAM, self).create_subnet(context, subnet)
+        self.ipam.create_subnet(context, subnet['subnet'])
         return s
 
     def delete_subnet(self, context, id):
         with context.session.begin(subtransactions=True):
             subnet = self._get_subnet(context, id)
-            self.ddi.delete_subnet(context, subnet)
-            super(NeutronDbPluginV2DDI, self).delete_subnet(context, id)
+            self.ipam.delete_subnet(context, subnet)
+            super(NeutronDbPluginV2IPAM, self).delete_subnet(context, id)
 
     def delete_network(self, context, id):
         with context.session.begin(subtransactions=True):
             network = self._get_network(context, id)
-            self.ddi.delete_network(context, network)
-            super(NeutronDbPluginV2DDI, self).delete_network(context, id)
+            self.ipam.delete_network(context, network)
+            super(NeutronDbPluginV2IPAM, self).delete_network(context, id)
 
     def create_port(self, context, port):
-        port_dict = super(NeutronDbPluginV2DDI, self).create_port(context,
-                                                                  port)
-        self.ddi.create_port(context, port_dict)
+        port_dict = super(NeutronDbPluginV2IPAM, self).create_port(context,
+                                                                   port)
+        self.ipam.create_port(context, port_dict)
         return port_dict
 
     def _delete_port(self, context, id):
@@ -1848,7 +1848,7 @@ class NeutronDbPluginV2DDI(NeutronDbPluginV2Impl):
             query = query.filter_by(tenant_id=context.tenant_id)
 
         port = query.with_lockmode('update').one()
-        self.ddi.delete_port(context, port)
+        self.ipam.delete_port(context, port)
 
         allocated_qry = context.session.query(
             models_v2.IPAllocation).with_lockmode('update')
@@ -1859,11 +1859,11 @@ class NeutronDbPluginV2DDI(NeutronDbPluginV2Impl):
         for a in allocated:
             ip = dict(subnet_id=a['subnet_id'],
                       ip_address=a['ip_address'])
-            self.ddi.deallocate_ip(context, host, ip)
+            self.ipam.deallocate_ip(context, host, ip)
 
         query.delete()
 
-if cfg.CONF.use_ddi:
-    NeutronDbPluginV2 = NeutronDbPluginV2DDI
+if cfg.CONF.use_ipam:
+    NeutronDbPluginV2 = NeutronDbPluginV2IPAM
 else:
     NeutronDbPluginV2 = NeutronDbPluginV2Impl

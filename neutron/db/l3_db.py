@@ -782,12 +782,12 @@ class L3_NAT_db_mixin(l3.RouterPluginBase):
             fip['id'] = id
             fip_port_id = floatingip_db['floating_port_id']
             before_router_id = floatingip_db['router_id']
-            if cfg.CONF.use_ddi:
+            if cfg.CONF.use_ipam:
                 port = self._core_plugin.get_port(context.elevated(),
                                                   fip_port_id)
                 self._update_fip_assoc(context, fip, floatingip_db, port)
-                ddi = manager.NeutronManager.get_ddi()
-                ddi.update_floatingip(context, floatingip, port)
+                ipam = manager.NeutronManager.get_ipam()
+                ipam.update_floatingip(context, floatingip, port)
             else:
                 self._update_fip_assoc(context, fip, floatingip_db,
                                        self._core_plugin.get_port(

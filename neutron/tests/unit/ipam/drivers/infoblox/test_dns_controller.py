@@ -18,8 +18,8 @@ from mock import call
 
 import taskflow.engines
 
-from neutron.ddi.drivers.infoblox import dns_controller
-from neutron.ddi.drivers.infoblox import infoblox_ddi
+from neutron.ipam.drivers.infoblox import dns_controller
+from neutron.ipam.drivers.infoblox import infoblox_ipam
 from neutron.tests import base
 
 
@@ -110,7 +110,7 @@ class GenericDNSControllerTestCase(base.BaseTestCase):
 class DomainZoneTestCase(base.BaseTestCase):
     def test_two_dns_zones_created_on_create_dns_zone(self):
         manip = mock.Mock()
-        context = infoblox_ddi.FlowContext(mock.Mock(), 'create-dns')
+        context = infoblox_ipam.FlowContext(mock.Mock(), 'create-dns')
         subnet = {'network_id': 'some-id',
                   'cidr': 'some-cidr'}
         expected_member = 'member-name'

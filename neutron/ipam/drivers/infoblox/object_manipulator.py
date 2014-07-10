@@ -13,8 +13,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from neutron.ddi.drivers.infoblox import exceptions as exc
-from neutron.ddi.drivers.infoblox import objects
+from neutron.ipam.drivers.infoblox import exceptions as exc
+from neutron.ipam.drivers.infoblox import objects
 from neutron.openstack.common import log as logging
 
 

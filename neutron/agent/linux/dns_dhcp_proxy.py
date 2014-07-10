@@ -35,9 +35,9 @@ OPTS = [
     cfg.StrOpt('dns_relay_ip',
                default=None,
                help=_('IP address of DNS server to relay to.')),
-    cfg.StrOpt('ddi_proxy_bridge',
+    cfg.StrOpt('ipam_proxy_bridge',
                default=None,
-               help=_('Name of a bridge through which ddi proxy agent will'
+               help=_('Name of a bridge through which ipam proxy agent will'
                       ' connect to external network in which DHCP and DNS'
                       ' server resides.')),
     cfg.StrOpt('dhclient_path',
@@ -85,12 +85,12 @@ class DnsDhcpProxy(dhcp.DhcpLocalProcess):
         super(DnsDhcpProxy, self).__init__(conf, network, root_helper,
                                            version, plugin)
 
-        if not self.conf.ddi_proxy_bridge:
-            LOG.error(_('You must specify an ddi_proxy_bridge option '
+        if not self.conf.ipam_proxy_bridge:
+            LOG.error(_('You must specify an ipam_proxy_bridge option '
                         'in config'))
             raise exc.InvalidConfigurationOption(
-                opt_name='ddi_proxy_bridge',
-                opt_value=self.conf.ddi_proxy_bridge)
+                opt_name='ipam_proxy_bridge',
+                opt_value=self.conf.ipam_proxy_bridge)
 
         dhcp_relay_ip = self._get_relay_ip('dhcp_relay_ip')
         if not dhcp_relay_ip:
@@ -156,7 +156,7 @@ class DnsDhcpProxy(dhcp.DhcpLocalProcess):
             self.network,
             relay_iface_name,
             relay_iface_mac_address,
-            self.conf.ddi_proxy_bridge)
+            self.conf.ipam_proxy_bridge)
 
         interface_name = self.device_manager.setup(self.network,
                                                    reuse_existing=True)
@@ -198,11 +198,11 @@ class DnsDhcpProxy(dhcp.DhcpLocalProcess):
             self.device_manager.destroy_relay(
                 self.network,
                 self._get_relay_device_name(),
-                self.conf.ddi_proxy_bridge)
+                self.conf.ipam_proxy_bridge)
         self._remove_config_files()
 
     def spawn_process(self):
-        """Spawns a DDI proxy processes for the network."""
+        """Spawns a IPAM proxy processes for the network."""
         self._spawn_dhcp_proxy()
         self._spawn_dns_proxy()
 

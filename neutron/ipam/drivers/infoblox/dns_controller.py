@@ -18,12 +18,12 @@ from taskflow.patterns import linear_flow
 
 from neutron.common import constants
 from neutron.db.infoblox import infoblox_db as infoblox_db
-from neutron.ddi.drivers import neutron_ddi
-from neutron.ddi.drivers.infoblox import object_manipulator
-from neutron.ddi.drivers.infoblox import config
-from neutron.ddi.drivers.infoblox import connector
-from neutron.ddi.drivers.infoblox import tasks
-from neutron.ddi.drivers.infoblox import ea_manager
+from neutron.ipam.drivers import neutron_ipam
+from neutron.ipam.drivers.infoblox import object_manipulator
+from neutron.ipam.drivers.infoblox import config
+from neutron.ipam.drivers.infoblox import connector
+from neutron.ipam.drivers.infoblox import tasks
+from neutron.ipam.drivers.infoblox import ea_manager
 from neutron.openstack.common import log as logging
 from neutron.plugins.common import constants as plugins_constants
 
@@ -61,7 +61,7 @@ LOG = logging.getLogger(__name__)
 neutron_conf.CONF.register_opts(OPTS)
 
 
-class InfobloxDNSController(neutron_ddi.NeutronDNSController):
+class InfobloxDNSController(neutron_ipam.NeutronDNSController):
 
     SUBDOMAIN_NAME_LEN = 8
 

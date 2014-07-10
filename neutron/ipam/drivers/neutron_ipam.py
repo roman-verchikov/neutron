@@ -21,7 +21,7 @@ from sqlalchemy.orm import exc
 
 from neutron.api.v2 import attributes
 from neutron.db import models_v2
-from neutron.ddi import base
+from neutron.ipam import base
 from neutron.openstack.common import log as logging
 
 LOG = logging.getLogger(__name__)
@@ -474,7 +474,7 @@ class NeutronDNSController(base.DNSController):
         pass
 
 
-class NeutronDDI(base.DDI):
+class NeutronIPAM(base.IPAM):
     def __init__(self):
         self.ipam_controller = NeutronIPAMController()
         self.dhcp_controller = NeutronDHCPController()
@@ -482,51 +482,52 @@ class NeutronDDI(base.DDI):
 
     def create_subnet(self, context, subnet):
         with context.session.begin(subtransactions=True):
-            return super(NeutronDDI, self).create_subnet(context, subnet)
+            return super(NeutronIPAM, self).create_subnet(context, subnet)
 
     def update_subnet(self, context, subnet_id, subnet):
         with context.session.begin(subtransactions=True):
-            return super(NeutronDDI, self).update_subnet(context, subnet_id,
-                                                         subnet)
+            return super(NeutronIPAM, self).update_subnet(context, subnet_id,
+                                                          subnet)
 
     def get_subnets_by_network(self, context, network_id):
         with context.session.begin(subtransactions=True):
-            return super(NeutronDDI, self).get_subnets_by_network(context,
-                                                                  network_id)
+            return super(NeutronIPAM, self).get_subnets_by_network(context,
+                                                                   network_id)
 
     def get_all_subnets(self, context):
         with context.session.begin(subtransactions=True):
-            return super(NeutronDDI, self).get_all_subnets(context)
+            return super(NeutronIPAM, self).get_all_subnets(context)
 
     def get_subnets(self, context, filters=None, fields=None,
                     sorts=None, limit=None, marker=None,
                     page_reverse=False):
         with context.session.begin(subtransactions=True):
-            return super(NeutronDDI, self).get_subnets(context, filters,
-                                                       fields, sorts, limit,
-                                                       marker, page_reverse)
+            return super(NeutronIPAM, self).get_subnets(context, filters,
+                                                        fields, sorts, limit,
+                                                        marker, page_reverse)
 
     def get_subnets_count(self, context, filters=None):
         with context.session.begin(subtransactions=True):
-            return super(NeutronDDI, self).get_subnets_count(context, filters)
+            return super(NeutronIPAM, self).get_subnets_count(context, filters)
 
     def get_subnet_by_id(self, context, subnet_id):
         with context.session.begin(subtransactions=True):
-            return super(NeutronDDI, self).get_subnet_by_id(context, subnet_id)
+            return super(NeutronIPAM, self).get_subnet_by_id(context,
+                                                             subnet_id)
 
     def allocate_ip(self, context, host, ip):
         with context.session.begin(subtransactions=True):
-            return super(NeutronDDI, self).allocate_ip(context, host, ip)
+            return super(NeutronIPAM, self).allocate_ip(context, host, ip)
 
     def deallocate_ip(self, context, host, ip):
         with context.session.begin(subtransactions=True):
-            return super(NeutronDDI, self).deallocate_ip(context, host, ip)
+            return super(NeutronIPAM, self).deallocate_ip(context, host, ip)
 
     def delete_subnet(self, context, subnet_id):
         with context.session.begin(subtransactions=True):
-            return super(NeutronDDI, self).delete_subnet(context, subnet_id)
+            return super(NeutronIPAM, self).delete_subnet(context, subnet_id)
 
     def delete_subnets_by_network(self, context, network_id):
         with context.session.begin(subtransactions=True):
-            return super(NeutronDDI, self).delete_subnets_by_network(
+            return super(NeutronIPAM, self).delete_subnets_by_network(
                 context, network_id)

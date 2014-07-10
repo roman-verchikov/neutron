@@ -15,9 +15,9 @@
 
 import mock
 
-from neutron.ddi.drivers.infoblox import exceptions
-from neutron.ddi.drivers.infoblox import objects
-from neutron.ddi.drivers.infoblox import object_manipulator as om
+from neutron.ipam.drivers.infoblox import exceptions
+from neutron.ipam.drivers.infoblox import objects
+from neutron.ipam.drivers.infoblox import object_manipulator as om
 from neutron.tests import base
 
 
