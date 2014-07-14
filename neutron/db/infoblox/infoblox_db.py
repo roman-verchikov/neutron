@@ -17,7 +17,6 @@ from oslo.config import cfg
 import sqlalchemy as sa
 from sqlalchemy.orm import exc
 
-from neutron.common import exceptions as q_exc
 from neutron.db import external_net_db
 from neutron.db import model_base
 from neutron.db import models_v2
@@ -117,10 +116,15 @@ def get_network_name(context, subnet):
 
 def get_device_id_by_port(context, port_id):
     try:
-        port = context.session.query(context, models_v2.Port, port_id)
+        query = context.session.query(models_v2.Port)
+        port = query.filter(models_v2.Port.id == port_id).one()
     except exc.NoResultFound:
-        raise q_exc.PortNotFound(port_id=port_id)
-    return port.get('device_id', None)
+        return None
+
+    if port:
+        return port.device_id
+
+    return None
 
 
 def get_subnet_dhcp_port_address(context, subnet_id):

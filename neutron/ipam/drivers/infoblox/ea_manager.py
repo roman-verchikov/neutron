@@ -185,7 +185,7 @@ def port_extattrs_result_filter_hook(query, filters):
 
 
 if (cfg.CONF.use_ipam and cfg.CONF.ipam_driver ==
-    'neutron.ipam.drivers.infoblox.infoblox_ipam.InfobloxIPAM'):
+        'neutron.ipam.drivers.infoblox.infoblox_ipam.InfobloxIPAM'):
 
     db_base_plugin_v2.NeutronDbPluginV2.register_model_query_hook(
         models_v2.Port, 'port_extattrs', None, None,

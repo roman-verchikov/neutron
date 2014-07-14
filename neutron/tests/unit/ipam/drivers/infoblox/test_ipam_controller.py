@@ -393,7 +393,7 @@ class CreateSubnetFlowTestCase(base.BaseTestCase):
         member_conf = mock.MagicMock()
         ip_allocator = mock.Mock()
         self.context = infoblox_ipam.FlowContext(mock.MagicMock(),
-                                                'create-subnet')
+                                                 'create-subnet')
         self.subnet = {'cidr': '192.168.0.0/24',
                        'tenant_id': 'some-id',
                        'network_id': 'some-id',
