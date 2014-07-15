@@ -21,8 +21,6 @@ from neutron.db import external_net_db
 from neutron.db import model_base
 from neutron.db import models_v2
 from neutron.openstack.common import log as logging
-from neutron.plugins.ml2 import db as ml2_db
-from neutron.plugins.openvswitch import ovs_db_v2
 
 LOG = logging.getLogger(__name__)
 
@@ -150,41 +148,23 @@ class NetworkL2InfoProvider(object):
         else:
             self.plugin = plugin
 
-    def _get_behavior_class(self):
+    def get_network_l2_info(self, session, network_id):
+        segments = None
+        l2_info = {'network_type': None,
+                   'segmentation_id': None,
+                   'physical_network': None}
+
         if self.plugin == 'neutron.plugins.ml2.plugin.Ml2Plugin':
-            return Ml2NetworkL2InfoProvider()
-        if self.plugin == 'neutron.plugins.openvswitch.' \
-                          'ovs_neutron_plugin.OVSNeutronPluginV2':
-            return OVSNetworkL2InfoProvider()
+            from neutron.plugins.ml2 import db as ml2_db
 
-    def get_network_l2_info(self, session, network_id):
-        behavior_class = self._get_behavior_class()
-        return behavior_class.get_network_l2_info(session, network_id)
+            segments = ml2_db.get_network_segments(session, network_id)[0]
+        elif self.plugin == 'neutron.plugins.openvswitch.' \
+                            'ovs_neutron_plugin.OVSNeutronPluginV2':
+            from neutron.plugins.openvswitch import ovs_db_v2
+            segments = ovs_db_v2.get_network_binding(session, network_id)
 
+        if segments:
+            for name, value in segments.iteritems():
+                l2_info[name] = value
 
-class Ml2NetworkL2InfoProvider(object):
-    def get_network_l2_info(self, session, network_id):
-        network_segments = ml2_db.get_network_segments(session, network_id)
-        result = dict()
-        if network_segments:
-            for name, value in network_segments[0].iteritems():
-                result[name] = value
-            return result
-        else:
-            return {'network_type': None,
-                    'segmentation_id': None,
-                    'physical_network': None}
-
-
-class OVSNetworkL2InfoProvider(object):
-    def get_network_l2_info(self, session, network_id):
-        network_binding = ovs_db_v2.get_network_binding(session, network_id)
-        result = dict()
-        if network_binding:
-            for name, value in network_binding.iteritems():
-                result[name] = value
-            return result
-        else:
-            return {'network_type': None,
-                    'segmentation_id': None,
-                    'physical_network': None}
+        return l2_info
