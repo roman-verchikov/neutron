@@ -329,7 +329,9 @@ class MemberManager(object):
 
             member_config_stream = io.FileIO(config_file)
         with member_config_stream:
-            self.available_members = json.loads(member_config_stream.read())
+            all_members = json.loads(member_config_stream.read())
+            self.available_members = [member for member in all_members
+                                      if member.get('is_available') != False]
 
     def next_available(self, context,
                        members_to_choose_from=Config.NEXT_AVAILABLE_MEMBER,

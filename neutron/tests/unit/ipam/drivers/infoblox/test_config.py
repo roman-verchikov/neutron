@@ -480,3 +480,18 @@ class MemberManagerTestCase(base.BaseTestCase):
 
         self.assertRaises(exceptions.NoInfobloxMemberAvailable, mm.get_member,
                           search_for_name)
+
+    def test_member_marked_as_unavailable(self):
+        member_config = [{"name": "available_member",
+                          "ipv4addr": "192.168.1.2"},
+                         {"name": "unavailable_member",
+                          "ipv4addr": "192.168.1.3",
+                          "is_available": False}
+                         ]
+
+        mm = config.MemberManager(io.BytesIO(json.dumps(member_config)))
+
+        self.assertEqual(1, len(mm.available_members))
+        self.assertEqual({"name": "available_member",
+                          "ipv4addr": "192.168.1.2"},
+                         mm.available_members[0])
