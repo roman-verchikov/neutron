@@ -269,3 +269,7 @@ class Member(object):
 
     def __eq__(self, other):
         return self.ip == other.ip and self.name == other.name
+
+    def __repr__(self):
+        return 'Member(IP={ip}, name={name})'.format(ip=self.ip,
+                                                     name=self.name)

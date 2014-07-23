@@ -15,6 +15,7 @@
 
 import json
 import io
+from operator import attrgetter
 
 from oslo.config import cfg as neutron_conf
 
@@ -330,19 +331,25 @@ class MemberManager(object):
             member_config_stream = io.FileIO(config_file)
         with member_config_stream:
             all_members = json.loads(member_config_stream.read())
-            self.available_members = [member for member in all_members
-                                      if member.get('is_available') != False]
+
+            try:
+                self.available_members = map(
+                    lambda m: objects.Member(name=m['name'], ip=m['ipv4addr']),
+                    filter(lambda m: m.get('is_available', True), all_members))
+            except KeyError as key:
+                raise exceptions.InvalidMemberConfig(key=key)
 
     def next_available(self, context,
                        members_to_choose_from=Config.NEXT_AVAILABLE_MEMBER,
                        member_type=ib_db.DHCP_MEMBER_TYPE):
         if members_to_choose_from == Config.NEXT_AVAILABLE_MEMBER:
-            members_to_choose_from = self.available_members
+            members_to_choose_from = map(attrgetter('name'),
+                                         self.available_members)
 
         already_reserved = ib_db.get_used_members(context, member_type)
         for member in members_to_choose_from:
-            if member['name'] not in already_reserved:
-                return objects.Member(member['ipv4addr'], member['name'])
+            if member not in already_reserved:
+                return self.get_member(member)
         raise exceptions.NoInfobloxMemberAvailable()
 
     def reserve_member(self, context, mapping, member_name, member_type):
@@ -352,8 +359,8 @@ class MemberManager(object):
         member_name = ib_db.get_member(context, mapping, member_type)
         if member_name:
             for member in self.available_members:
-                if member['name'] == member_name:
-                    return objects.Member(member['ipv4addr'], member['name'])
+                if member.name == member_name:
+                    return member
             else:
                 raise exceptions.ReservedMemberNotAvailableInConfig(
                     member_name=member_name,
@@ -365,6 +372,6 @@ class MemberManager(object):
 
     def get_member(self, member_name):
         for member in self.available_members:
-            if member['name'] == member_name:
-                return objects.Member(member['ipv4addr'], member['name'])
+            if member.name == member_name:
+                return member
         raise exceptions.NoInfobloxMemberAvailable()

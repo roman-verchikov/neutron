@@ -166,3 +166,8 @@ class NoAttributeInInfobloxObject(exceptions.NeutronException):
 class ReservedMemberNotAvailableInConfig(exceptions.NeutronException):
     message = _('Reserved member %(member_name)s not available in members '
                 'config %(config)s.')
+
+
+class InvalidMemberConfig(exceptions.NeutronException):
+    message = _("Infoblox member configuration has invalid syntax: "
+                "expected %(key)s argument not found")

@@ -16,6 +16,7 @@
 import io
 import json
 import mock
+from operator import itemgetter
 
 from testtools import matchers
 
@@ -404,9 +405,10 @@ class MemberManagerTestCase(base.BaseTestCase):
         with mock.patch.object(infoblox_db, 'get_used_members',
                                mock.Mock(return_value=used_members)):
             available_member = mm.next_available(context)
-
-            self.assertIn({"name": available_member.name,
-                           "ipv4addr": available_member.ip}, unused_members)
+            expected_member = objects.Member(ip=available_member.ip,
+                                             name=available_member.name)
+            self.assertIn(expected_member.ip, map(itemgetter('ipv4addr'),
+                                                  unused_members))
 
     def test_raises_no_member_available_if_all_members_used(self):
         context = mock.MagicMock()
@@ -482,16 +484,16 @@ class MemberManagerTestCase(base.BaseTestCase):
                           search_for_name)
 
     def test_member_marked_as_unavailable(self):
-        member_config = [{"name": "available_member",
-                          "ipv4addr": "192.168.1.2"},
+        expected_ip = "192.168.1.2"
+        expected_name = "available_member"
+        member_config = [{"name": expected_name,
+                          "ipv4addr": expected_ip},
                          {"name": "unavailable_member",
                           "ipv4addr": "192.168.1.3",
-                          "is_available": False}
-                         ]
+                          "is_available": False}]
 
+        expected_member = objects.Member(ip=expected_ip, name=expected_name)
         mm = config.MemberManager(io.BytesIO(json.dumps(member_config)))
 
         self.assertEqual(1, len(mm.available_members))
-        self.assertEqual({"name": "available_member",
-                          "ipv4addr": "192.168.1.2"},
-                         mm.available_members[0])
+        self.assertEqual(expected_member, mm.available_members[0])
