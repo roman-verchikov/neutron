@@ -432,3 +432,43 @@ class CreateSubnetFlowTestCase(base.BaseTestCase):
         assert self.infoblox.delete_network.called
         assert not self.infoblox.delete_dns_view.called
         assert not self.infoblox.delete_network_view.called
+
+
+class DeleteNetworkTestCase(base.BaseTestCase):
+    def test_deletes_all_subnets(self):
+        infoblox = mock.Mock()
+        ip_allocator = mock.Mock()
+        member_conf = mock.Mock()
+        context = mock.Mock()
+        network = {'id': 'some-id'}
+        num_subnets = 5
+
+        b = ipam_controller.InfobloxIPAMController(infoblox,
+                                                   member_conf,
+                                                   ip_allocator)
+
+        b.delete_subnet = mock.Mock()
+        b.get_subnets_by_network = mock.Mock()
+        b.get_subnets_by_network.return_value = [mock.Mock()
+                                                 for _ in xrange(num_subnets)]
+
+        b.delete_network(context, network)
+
+        assert b.delete_subnet.called
+        assert b.delete_subnet.call_count == num_subnets
+
+    def test_network_view_deleted(self):
+        infoblox = mock.Mock()
+        ip_allocator = mock.Mock()
+        member_conf = mock.Mock()
+        context = mock.Mock()
+        network = {'id': 'some-id'}
+
+        b = ipam_controller.InfobloxIPAMController(infoblox,
+                                                   member_conf,
+                                                   ip_allocator)
+
+        b.get_subnets_by_network = mock.MagicMock()
+        b.delete_network(context, network)
+
+        assert infoblox.delete_network_view.called_once

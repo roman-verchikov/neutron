@@ -220,6 +220,13 @@ class InfobloxIPAMController(neutron_ipam.NeutronIPAMController):
             self.infoblox.update_network_options(net)
 
     def delete_network(self, context, network):
+        subnets = self.get_subnets_by_network(context, network['id'])
+
+        for subnet in subnets:
+            self.delete_subnet(context, subnet)
+
         cfg = self.config_finder.find_config_for_network(context, network)
 
-        self.infoblox.delete_network_view(cfg.network_view)
+        # Delete network view only if there are no NIOS networks there
+        if not self.infoblox.has_networks(cfg.network_view):
+            self.infoblox.delete_network_view(cfg.network_view)
