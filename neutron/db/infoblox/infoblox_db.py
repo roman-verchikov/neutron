@@ -13,8 +13,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from sqlalchemy.orm import exc
-
 from neutron.db import external_net_db
 from neutron.db.infoblox import models
 from neutron.db import l3_db

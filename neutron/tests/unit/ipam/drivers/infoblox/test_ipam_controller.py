@@ -162,7 +162,7 @@ class UpdateSubnetTestCase(base.BaseTestCase):
 class AllocateIPTestCase(base.BaseTestCase):
     def test_host_record_created_on_allocate_ip(self):
         infoblox = mock.Mock()
-        member_config = mock.Mock()
+        member_config = mock.MagicMock()
         ip_allocator = mock.Mock()
         context = mock.Mock()
 
@@ -186,7 +186,7 @@ class AllocateIPTestCase(base.BaseTestCase):
 
     def test_host_record_from_range_created_on_allocate_ip(self):
         infoblox = mock.Mock()
-        member_config = mock.Mock()
+        member_config = mock.MagicMock()
         ip_allocator = mock.Mock()
         context = mock.Mock()
 
