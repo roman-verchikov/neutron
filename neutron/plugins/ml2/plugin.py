@@ -617,6 +617,9 @@ class Ml2Plugin(db_base_plugin_v2.NeutronDbPluginV2,
                         LOG.debug(_("Deleting network record %s"), record)
                         session.delete(record)
 
+                        manager.NeutronManager.get_ipam().delete_network(
+                            context, id)
+
                         # The segment records are deleted via cascade from the
                         # network record, so explicit removal is not necessary.
                         LOG.debug(_("Committing transaction"))
@@ -730,6 +733,9 @@ class Ml2Plugin(db_base_plugin_v2.NeutronDbPluginV2,
                                                                 subnet)
                     self.mechanism_manager.delete_subnet_precommit(
                         mech_context)
+
+                    manager.NeutronManager.get_ipam().delete_subnet(
+                        context, id)
 
                     LOG.debug(_("Deleting subnet record"))
                     session.delete(record)

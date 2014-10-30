@@ -115,7 +115,7 @@ class AgentDbMixin(ext_agent.AgentPluginBase):
             conf = {}
         return conf
 
-    def _make_agent_dict(self, agent, fields=None):
+    def _make_agent_dict(self, agent, fields=None, context=None):
         attr = ext_agent.RESOURCE_ATTRIBUTE_MAP.get(
             ext_agent.RESOURCE_NAME + 's')
         res = dict((k, agent[k]) for k in attr

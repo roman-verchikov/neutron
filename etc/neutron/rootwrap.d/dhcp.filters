@@ -20,6 +20,10 @@ ovs-vsctl: CommandFilter, ovs-vsctl, root
 ivs-ctl: CommandFilter, ivs-ctl, root
 mm-ctl: CommandFilter, mm-ctl, root
 dhcp_release: CommandFilter, dhcp_release, root
+dhcrelay: CommandFilter, /usr/local/dhcp-4.3.0/sbin/dhcrelay, root
+dhclient: CommandFilter, /usr/local/dhcp-4.3.0/sbin/dhclient, root
+dnsmasq: CommandFilter, dnsmasq, root
+kill: CommandFilter, kill, root
 
 # metadata proxy
 metadata_proxy: CommandFilter, neutron-ns-metadata-proxy, root

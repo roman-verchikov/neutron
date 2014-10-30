@@ -34,6 +34,7 @@ from neutron.common import utils
 from neutron import context
 from neutron.db import db_base_plugin_v2
 from neutron.db import models_v2
+from neutron.ipam.drivers import neutron_ipam
 from neutron import manager
 from neutron.openstack.common import importutils
 from neutron.tests import base
@@ -1268,8 +1269,9 @@ fixed_ips=ip_address%%3D%s&fixed_ips=ip_address%%3D%s&fixed_ips=subnet_id%%3D%s
         def fake_gen_mac(context, net_id):
             raise n_exc.MacAddressGenerationFailure(net_id=net_id)
 
-        with mock.patch.object(neutron.db.db_base_plugin_v2.NeutronDbPluginV2,
-                               '_generate_mac', new=fake_gen_mac):
+        with mock.patch.object(
+                neutron.db.db_base_plugin_v2.NeutronCorePluginV2,
+                '_generate_mac', new=fake_gen_mac):
             res = self._create_network(fmt=self.fmt, name='net1',
                                        admin_state_up=True)
             network = self.deserialize(self.fmt, res)
@@ -3872,9 +3874,9 @@ class TestNeutronDbPluginV2(base.BaseTestCase):
     """Unit Tests for NeutronDbPluginV2 IPAM Logic."""
 
     def test_generate_ip(self):
-        with mock.patch.object(db_base_plugin_v2.NeutronDbPluginV2,
+        with mock.patch.object(db_base_plugin_v2.NeutronCorePluginV2,
                                '_try_generate_ip') as generate:
-            with mock.patch.object(db_base_plugin_v2.NeutronDbPluginV2,
+            with mock.patch.object(db_base_plugin_v2.NeutronCorePluginV2,
                                    '_rebuild_availability_ranges') as rebuild:
 
                 db_base_plugin_v2.NeutronDbPluginV2._generate_ip('c', 's')
@@ -3883,9 +3885,9 @@ class TestNeutronDbPluginV2(base.BaseTestCase):
         self.assertEqual(0, rebuild.call_count)
 
     def test_generate_ip_exhausted_pool(self):
-        with mock.patch.object(db_base_plugin_v2.NeutronDbPluginV2,
+        with mock.patch.object(db_base_plugin_v2.NeutronCorePluginV2,
                                '_try_generate_ip') as generate:
-            with mock.patch.object(db_base_plugin_v2.NeutronDbPluginV2,
+            with mock.patch.object(db_base_plugin_v2.NeutronCorePluginV2,
                                    '_rebuild_availability_ranges') as rebuild:
 
                 exception = n_exc.IpAddressGenerationFailure(net_id='n')
@@ -3956,6 +3958,12 @@ class NeutronDbPluginV2AsMixinTestCase(testlib_api.SqlTestCase):
 
     def setUp(self):
         super(NeutronDbPluginV2AsMixinTestCase, self).setUp()
+
+        mock_nm_get_ipam = mock.patch(
+            'neutron.manager.NeutronManager.get_ipam')
+        self.mock_nm_get_ipam = mock_nm_get_ipam.start()
+        self.mock_nm_get_ipam.return_value = neutron_ipam.NeutronIPAM()
+
         self.plugin = importutils.import_object(DB_PLUGIN_KLASS)
         self.context = context.get_admin_context()
         self.net_data = {'network': {'id': 'fake-id',
@@ -3963,6 +3971,8 @@ class NeutronDbPluginV2AsMixinTestCase(testlib_api.SqlTestCase):
                                      'admin_state_up': True,
                                      'tenant_id': 'test-tenant',
                                      'shared': False}}
+
+        self.addCleanup(mock_nm_get_ipam.stop)
 
     def test_create_network_with_default_status(self):
         net = self.plugin.create_network(self.context, self.net_data)

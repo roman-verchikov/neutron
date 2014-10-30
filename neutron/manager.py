@@ -123,6 +123,10 @@ class NeutronManager(object):
         # the rest of service plugins
         self.service_plugins = {constants.CORE: self.plugin}
         self._load_service_plugins()
+        # Load IPAM driver
+        ipam_driver_class_name = cfg.CONF.ipam_driver
+        ipam_driver_class = importutils.import_class(ipam_driver_class_name)
+        self.ipam = ipam_driver_class()
 
     def _get_plugin_instance(self, namespace, plugin_provider):
         try:
@@ -223,3 +227,7 @@ class NeutronManager(object):
         # Return weakrefs to minimize gc-preventing references.
         return dict((x, weakref.proxy(y))
                     for x, y in cls.get_instance().service_plugins.iteritems())
+
+    @classmethod
+    def get_ipam(cls):
+        return cls.get_instance().ipam
