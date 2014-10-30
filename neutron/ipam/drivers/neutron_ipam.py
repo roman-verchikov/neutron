@@ -269,6 +269,9 @@ class NeutronDNSController(base.DNSController):
     def delete_dns_zones(self, context, backend_subnet):
         pass
 
+    def disassociate_floatingip(self, context, floatingip, port_id):
+        pass
+
 
 class NeutronIPAM(base.IPAMManager):
     def __init__(self, dhcp_controller=None, dns_controller=None,

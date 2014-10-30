@@ -77,6 +77,22 @@ class InfobloxDNSController(neutron_ipam.NeutronDNSController):
         self.ea_manager = ea_manager.InfobloxEaManager(infoblox_db)
         self.pattern_builder = config.PatternBuilder
 
+    def disassociate_floatingip(self, context, ip_address, port_id):
+        subs = infoblox_db.get_subnets_by_port(context, port_id)
+        port = infoblox_db.get_port_by_id(context, port_id)
+        extattrs = self.ea_manager.get_extattrs_for_ip(context, port)
+        del extattrs['os_instance_id']
+
+        configs = set()
+        for subnet in subs:
+            configs.add(self.config_finder.find_config_for_subnet(context,
+                                                                  subnet))
+
+        for cfg in configs:
+            self.infoblox.update_dns_record_eas(cfg.dns_view,
+                                                ip_address.floating_ip_address,
+                                                extattrs)
+
     def _get_hostname_pattern(self, port, cfg):
 
         port_owner = port['device_owner']

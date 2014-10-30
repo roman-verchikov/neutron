@@ -102,7 +102,7 @@ class DHCPController(neutron_db.NeutronPluginController):
 
 class DNSController(neutron_db.NeutronPluginController):
     """Incapsulates DNS related logic"""
-    __meta__ = abc.ABCMeta
+    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def bind_names(self, context, backend_port):
@@ -132,6 +132,13 @@ class DNSController(neutron_db.NeutronPluginController):
         delete subnet.
         :param backend_subnet: models_v2.Subnet object
         """
+        pass
+
+    @abc.abstractmethod
+    def disassociate_floatingip(self, context, floatingip, port_id):
+        """Called when floating IP gets disassociated from port
+        :param floatingip: l3_db.FloatingIP object to be disassociated
+        :param port_id: UUID of a port being disassociated"""
         pass
 
 

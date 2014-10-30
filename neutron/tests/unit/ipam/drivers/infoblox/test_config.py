@@ -482,6 +482,56 @@ class ConfigTestCase(base.BaseTestCase):
             except exceptions.OperationNotAllowed as e:
                 self.fail('Unexpected exception {}'.format(e))
 
+    def test_same_configs_are_equal(self):
+        member_manager = mock.Mock()
+        context = mock.Mock()
+        subnet = mock.Mock()
+
+        cfg = {
+            'condition': 'global',
+            'network_view': 'netview',
+            'dns_view': 'dnsview',
+            'dhcp_members': ['m1', 'm2', 'm3'],
+            'dns_members': ['m1', 'm2', 'm3']
+        }
+
+        c1 = config.Config(cfg, context, subnet, member_manager)
+        c2 = config.Config(cfg, context, subnet, member_manager)
+
+        self.assertTrue(c1 == c1)
+        self.assertTrue(c1 == c2)
+        self.assertTrue(c2 == c1)
+        self.assertTrue(c2 == c2)
+        self.assertTrue(c1 != object())
+        self.assertTrue(c2 != object())
+
+    def test_same_configs_are_not_added_to_set(self):
+        member_manager = mock.Mock()
+        context = mock.Mock()
+        subnet = mock.Mock()
+
+        cfg = {
+            'condition': 'global',
+            'network_view': 'netview',
+            'dns_view': 'dnsview',
+            'dhcp_members': ['m1', 'm2', 'm3'],
+            'dns_members': ['m1', 'm2', 'm3']
+        }
+
+        s = set()
+
+        for _ in xrange(10):
+            s.add(config.Config(cfg, context, subnet, member_manager))
+
+        self.assertEqual(len(s), 1)
+
+        cfg['condition'] = 'tenant'
+        s.add(config.Config(cfg, context, subnet, member_manager))
+        self.assertEqual(len(s), 2)
+
+        s.add(config.Config(cfg, context, subnet, member_manager))
+        self.assertEqual(len(s), 2)
+
 
 class MemberManagerTestCase(base.BaseTestCase):
     def test_raises_error_if_no_config_file(self):
