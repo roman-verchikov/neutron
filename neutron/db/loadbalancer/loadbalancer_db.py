@@ -388,7 +388,7 @@ class LoadBalancerPluginDb(loadbalancer.LoadBalancerPluginBase,
                 raise loadbalancer.VipExists(pool_id=v['pool_id'])
 
         try:
-            # create a port to reserve address for IPAM
+            # create a port to reserve address for IPAMManager
             # do it outside the transaction to avoid rpc calls
             self._create_port_for_vip(
                 context, vip_db, v['subnet_id'], v.get('address'))

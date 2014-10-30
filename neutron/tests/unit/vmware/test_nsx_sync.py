@@ -304,6 +304,22 @@ class SyncTestCase(testlib_api.SqlTestCase):
         super(SyncTestCase, self).setUp()
         self.addCleanup(self.fc.reset_all)
 
+        mock_nm_get_ipam = mock.patch('neutron.manager.NeutronManager.'
+                                      'get_ipam')
+        self.mock_nm_get_ipam = mock_nm_get_ipam.start()
+        ipam = mock.Mock()
+        ipam.create_network = lambda ctx, net: net
+
+        self.allocate_counter = 1
+        ipam.allocate_ip = self._allocate_ip_mock
+
+        self.mock_nm_get_ipam.return_value = ipam
+        self.addCleanup(mock_nm_get_ipam.stop)
+
+    def _allocate_ip_mock(self, *args):
+        self.allocate_counter += 1
+        return '10.20.30.%s' % self.allocate_counter
+
     @contextlib.contextmanager
     def _populate_data(self, ctx, net_size=2, port_size=2, router_size=2):
 
