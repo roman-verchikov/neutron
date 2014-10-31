@@ -166,7 +166,7 @@ class AllocateIPTestCase(base.BaseTestCase):
         context = mock.Mock()
 
         hostname = 'fake port id'
-        subnet = {'tenant_id': 'some-id'}
+        subnet = {'tenant_id': 'some-id', 'id': 'some-id'}
         mac = 'aa:bb:cc:dd:ee:ff'
         port = {'id': hostname,
                 'mac_address': mac}
@@ -194,7 +194,8 @@ class AllocateIPTestCase(base.BaseTestCase):
         last_ip = '192.168.1.132'
         subnet = {'allocation_pools': [{'first_ip': first_ip,
                                         'last_ip': last_ip}],
-                  'tenant_id': 'some-id'}
+                  'tenant_id': 'some-id',
+                  'id': 'some-id'}
         mac = 'aa:bb:cc:dd:ee:ff'
         port = {'id': hostname,
                 'mac_address': mac}

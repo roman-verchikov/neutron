@@ -304,10 +304,19 @@ class IPAMManager(object):
         pass
 
     @abc.abstractmethod
-    def configure_floatingip(self, context, floatingip, port):
-        """Called on floating IP being created/deleted
-        :param floatingip: floating IP port object
-        :param port: port the floating IP to be associated with"""
+    def associate_floatingip(self, context, floatingip, port):
+        """Called on floating IP being associated with a port
+        :param floatingip: l3_db.FloatingIP object
+        :param port: models_v2.Port to be associated with floating IP"""
+        pass
+
+    @abc.abstractmethod
+    def disassociate_floatingip(self, context, floatingip, port_id):
+        """Inverse of associate floating IP. Removes relationship between
+        floating IP and a port
+        :param floatingip: l3_db.FloatingIP object to be disassociated from
+        port
+        :param port_id: port UUID to be disassociated from floating IP"""
         pass
 
     @abc.abstractmethod
