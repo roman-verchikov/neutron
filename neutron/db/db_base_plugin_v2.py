@@ -1525,6 +1525,7 @@ class NeutronIPAMPlugin(NeutronCorePluginV2):
         a subnet_id then allocate an IP address accordingly.
         """
         p = port['port']
+        p['id'] = port_id
         ips = []
 
         fixed_configured = p['fixed_ips'] is not attributes.ATTR_NOT_SPECIFIED
@@ -1620,9 +1621,10 @@ class NeutronIPAMPlugin(NeutronCorePluginV2):
     def create_network(self, context, network):
         net = super(NeutronIPAMPlugin, self).create_network(context,
                                                             network)
-        ipam_net = self.ipam.create_network(context, net)
 
-        return ipam_net
+        self.ipam.create_network(context, network['network'])
+
+        return net
 
     def get_networks(self, context, filters=None, fields=None,
                      sorts=None, limit=None, marker=None,
