@@ -230,4 +230,4 @@ class NeutronManager(object):
 
     @classmethod
     def get_ipam(cls):
-        return cls.get_instance().ipam
+        return cls.get_instance().get_ipam_driver
