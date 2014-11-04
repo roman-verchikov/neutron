@@ -245,22 +245,6 @@ class NeutronCorePluginV2(neutron_plugin_base_v2.NeutronPluginBaseV2,
         raise n_exc.IpAddressGenerationFailure(net_id=subnets[0]['network_id'])
 
     @staticmethod
-    def _is_ip_avaliable(context, subnets):
-        range_qry = context.session.query(
-            models_v2.IPAvailabilityRange).join(
-                models_v2.IPAllocationPool).with_lockmode('update')
-
-        ranges = []
-        for subnet in subnets:
-            ip_range = range_qry.filter_by(subnet_id=subnet['id']).first()
-            if ip_range:
-                ranges.append(ip_range)
-
-        if ranges:
-            return True
-        raise n_exc.IpAddressGenerationFailure(net_id=subnets[0]['network_id'])
-
-    @staticmethod
     def _rebuild_availability_ranges(context, subnets):
         """Rebuild availability ranges.
 
