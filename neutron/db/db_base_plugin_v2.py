@@ -457,7 +457,7 @@ class NeutronCorePluginV2(neutron_plugin_base_v2.NeutronPluginBaseV2,
             raise n_exc.InvalidInput(error_message=msg)
         return fixed_ip_set
 
-    def _allocate_fixed_ips(self, context, network, fixed_ips, port=None):
+    def _allocate_fixed_ips(self, context, fixed_ips):
         """Allocate IP addresses according to the configured fixed_ips."""
         ips = []
         for fixed in fixed_ips:
@@ -509,8 +509,7 @@ class NeutronCorePluginV2(neutron_plugin_base_v2.NeutronPluginBaseV2,
 
         if to_add:
             LOG.debug(_("Port update. Adding %s"), to_add)
-            network = self._get_network(context, network_id)
-            ips = self._allocate_fixed_ips(context, network, to_add)
+            ips = self._allocate_fixed_ips(context, to_add)
 
         return ips, prev_ips
 
@@ -529,7 +528,7 @@ class NeutronCorePluginV2(neutron_plugin_base_v2.NeutronPluginBaseV2,
             configured_ips = self._test_fixed_ips_for_port(context,
                                                            p["network_id"],
                                                            p['fixed_ips'])
-            ips = self._allocate_fixed_ips(context, network, configured_ips)
+            ips = self._allocate_fixed_ips(context, configured_ips)
         else:
             filter = {'network_id': [p['network_id']]}
             subnets = self.get_subnets(context, filters=filter)
@@ -1495,9 +1494,7 @@ class NeutronIPAMPlugin(NeutronCorePluginV2):
 
         if to_add:
             LOG.debug(_("Port update. Adding %s"), to_add)
-            network = self._get_network(context, network_id)
-            port = self._get_port(context, port_id)
-            ips = self._allocate_fixed_ips(context, network, to_add, port)
+            ips = self._allocate_fixed_ips(context, to_add)
 
         return ips, prev_ips
 
