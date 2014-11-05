@@ -358,17 +358,6 @@ class NeutronIPAM(base.IPAMManager):
 
             return subnet_id
 
-    def delete_subnets_by_network(self, context, network_id):
-        with context.session.begin(subtransactions=True):
-            subnets = neutron_db.get_subnets_by_network(
-                context, network_id)
-            for subnet in subnets:
-                self.delete_subnet(context, subnet['id'])
-
-    def get_subnet_by_id(self, context, subnet_id):
-        with context.session.begin(subtransactions=True):
-            return self.ipam_controller.get_subnet_by_id(context, subnet_id)
-
     def allocate_ip(self, context, host, ip):
         with context.session.begin(subtransactions=True):
             subnet_id = ip.get('subnet_id', None)
