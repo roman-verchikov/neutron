@@ -98,7 +98,7 @@ class TestInfobloxConnector(base.BaseTestCase):
     def test_create_object_with_extattrs(self):
         objtype = 'network'
         payload = {'ip': '0.0.0.0',
-                   'extattrs': {'os_subnet_id': {'value': 'fake_subnet_id'}}}
+                   'extattrs': {'Subnet ID': {'value': 'fake_subnet_id'}}}
         with mock.patch.object(requests.Session, 'post',
                                return_value=mock.Mock()) as patched_create:
             patched_create.return_value.status_code = 201
@@ -106,7 +106,7 @@ class TestInfobloxConnector(base.BaseTestCase):
             self.connector.create_object(objtype, payload)
             patched_create.assert_called_once_with(
                 'https://infoblox.example.org/wapi/v1.1/network',
-                data='{"ip": "0.0.0.0", "extattrs": {"os_subnet_id":'
+                data='{"ip": "0.0.0.0", "extattrs": {"Subnet ID":'
                      ' {"value": "fake_subnet_id"}}}',
                 headers={'Content-type': 'application/json'},
                 verify=False
@@ -133,7 +133,7 @@ class TestInfobloxConnector(base.BaseTestCase):
         objtype = 'network'
         payload = {'ip': '0.0.0.0'}
         extattrs = {
-            'os_subnet_id': {'value': 'fake_subnet_id'}
+            'Subnet ID': {'value': 'fake_subnet_id'}
         }
         with mock.patch.object(requests.Session, 'get',
                                return_value=mock.Mock()) as patched_get:
@@ -142,7 +142,7 @@ class TestInfobloxConnector(base.BaseTestCase):
             self.connector.get_object(objtype, payload, extattrs=extattrs)
             patched_get.assert_called_once_with(
                 'https://infoblox.example.org/wapi/'
-                'v1.1/network?*os_subnet_id=fake_subnet_id',
+                'v1.1/network?*Subnet ID=fake_subnet_id',
                 data='{"ip": "0.0.0.0"}',
                 headers={'Content-type': 'application/json'},
                 verify=False
