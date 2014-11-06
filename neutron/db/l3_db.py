@@ -761,7 +761,7 @@ class L3_NAT_dbonly_mixin(l3.RouterPluginBase):
                                               fip_port_id)
             self._update_fip_assoc(context, fip, floatingip_db, port)
             ipam = manager.NeutronManager.get_ipam()
-            ipam.configure_floatingip(context, floatingip, port)
+            ipam.associate_floatingip(context, floatingip, port)
 
         return old_floatingip, self._make_floatingip_dict(floatingip_db)
 
@@ -866,6 +866,10 @@ class L3_NAT_dbonly_mixin(l3.RouterPluginBase):
             floating_ips = fip_qry.filter_by(fixed_port_id=port_id)
             for floating_ip in floating_ips:
                 router_ids.add(floating_ip['router_id'])
+
+                ipam = manager.NeutronManager.get_ipam()
+                ipam.disassociate_floatingip(context, floating_ip, port_id)
+
                 floating_ip.update({'fixed_port_id': None,
                                     'fixed_ip_address': None,
                                     'router_id': None})

@@ -422,12 +422,12 @@ class NeutronIPAM(base.IPAMManager):
     def delete_port(self, context, port):
         self.dns_controller.unbind_names(context, port)
 
-    def configure_floatingip(self, context, floatingip, port):
-        associate = floatingip['floatingip'] is not None
-        if associate:
-            self.create_port(context, port)
-        else:
-            self.delete_port(context, port)
+    def associate_floatingip(self, context, floatingip, port):
+        self.create_port(context, port)
+
+    def disassociate_floatingip(self, context, floatingip, port_id):
+        self.dns_controller.disassociate_floatingip(context, floatingip,
+                                                    port_id)
 
     def get_additional_network_dict_params(self, ctx, network_id):
         return {}
