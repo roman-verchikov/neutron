@@ -1621,8 +1621,9 @@ class NeutronIPAMPlugin(NeutronCorePluginV2):
     def create_network(self, context, network):
         net = super(NeutronIPAMPlugin, self).create_network(context,
                                                             network)
-
-        self.ipam.create_network(context, network['network'])
+        n = network['network']
+        n['id'] = net['id']
+        self.ipam.create_network(context, n)
 
         return net
 

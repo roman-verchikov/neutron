@@ -251,11 +251,8 @@ class InfobloxIPAMController(neutron_ipam.NeutronIPAMController):
                 raise exceptions.InfobloxCannotAllocateIpForSubnet(
                     netview=networkview_name, cidr=subnets['cidr'])
 
-        # TODO(max_lobur): As kind of optimisation we could mark IP as used by
-        # neutron_ipam._allocate_specific_ip, to prevent poking already empty
-        # ranges.
         LOG.debug('IP address allocated on Infoblox NIOS: %s', allocated_ip)
-        return allocated_ip
+        return {'ip_address': allocated_ip, 'subnet_id': subnets['id']}
 
     def deallocate_ip(self, context, subnet, port, ip):
         cfg = self.config_finder.find_config_for_subnet(context, subnet)
