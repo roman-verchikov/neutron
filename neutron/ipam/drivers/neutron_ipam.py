@@ -102,18 +102,6 @@ class NeutronIPAMController(base.IPAMController):
 
         return self._fields(res, fields)
 
-    def get_subnets(self, context, filters=None, fields=None,
-                    sorts=None, limit=None, marker=None,
-                    page_reverse=False):
-        marker_obj = self._get_marker_obj(context, 'subnet', limit, marker)
-        return self._get_collection(context, models_v2.Subnet,
-                                    self._make_subnet_dict,
-                                    filters=filters, fields=fields,
-                                    sorts=sorts,
-                                    limit=limit,
-                                    marker_obj=marker_obj,
-                                    page_reverse=page_reverse)
-
     def get_subnets_count(self, context, filters=None):
         return self._get_collection_count(context, models_v2.Subnet,
                                           filters=filters)
@@ -396,13 +384,6 @@ class NeutronIPAM(base.IPAMManager):
                 backend_subnet,
                 host,
                 ip_address)
-
-    def get_subnets(self, context, filters=None, fields=None,
-                    sorts=None, limit=None, marker=None,
-                    page_reverse=False):
-        return self.ipam_controller.get_subnets(context, filters, fields,
-                                                sorts, limit, marker,
-                                                page_reverse)
 
     def create_network(self, context, network):
         return self.ipam_controller.create_network(context, network)

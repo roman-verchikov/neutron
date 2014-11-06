@@ -167,25 +167,6 @@ class IPAMController(neutron_db.NeutronPluginController):
         pass
 
     @abc.abstractmethod
-    def get_subnets(self, context, filters=None, fields=None,
-                    sorts=None, limit=None, marker=None,
-                    page_reverse=False):
-        """Returns a list of subnets based on arguments provided
-        :param filters: dict of {<subnet field>: <subnet field value>} to be
-        passed to SQL query
-        :param fields: list of fields to be included in return value
-        :param sorts: array of attributes and direction by which results should
-        be sorted
-        :param limit: maximum number of items to return
-        :param marker: the last item of the previous page; we returns the next
-        results after this value.
-        :param page_reverse: set to True for results returned in reverse order
-        :returns: list of models_v2.Subnet objects which match all the
-        arguments specified
-        """
-        pass
-
-    @abc.abstractmethod
     def force_off_ports(self, context, ports):
         """Disable ports on subnet delete event
         :param ports: list of models_v2.Port objects to be disabled
