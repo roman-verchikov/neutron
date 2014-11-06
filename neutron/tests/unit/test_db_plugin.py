@@ -3871,7 +3871,7 @@ class DbModelTestCase(base.BaseTestCase):
 
 
 class TestNeutronDbPluginV2(base.BaseTestCase):
-    """Unit Tests for NeutronDbPluginV2 IPAM Logic."""
+    """Unit Tests for NeutronDbPluginV2 IPAMManager Logic."""
 
     def test_generate_ip(self):
         with mock.patch.object(db_base_plugin_v2.NeutronCorePluginV2,

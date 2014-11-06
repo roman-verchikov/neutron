@@ -123,10 +123,11 @@ class NeutronManager(object):
         # the rest of service plugins
         self.service_plugins = {constants.CORE: self.plugin}
         self._load_service_plugins()
-        # Load IPAM driver
-        ipam_driver_class_name = cfg.CONF.ipam_driver
-        ipam_driver_class = importutils.import_class(ipam_driver_class_name)
-        self.ipam = ipam_driver_class()
+        # Load IPAMManager driver
+        ipam_driver_name = cfg.CONF.ipam_driver
+        LOG.info(_("Loading ipam driver: %s"), ipam_driver_name)
+        self.ipam = self._get_plugin_instance('neutron.ipam_drivers',
+                                              ipam_driver_name)
 
     def _get_plugin_instance(self, namespace, plugin_provider):
         try:

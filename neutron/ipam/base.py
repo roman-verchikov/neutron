@@ -37,7 +37,6 @@ class DHCPController(neutron_db.NeutronPluginController):
     DHCP service related actions.
     """
 
-    __meta__ = abc.ABCMeta
 
     @abc.abstractmethod
     def configure_dhcp(self, context, backend_subnet, dhcp_params):
@@ -267,7 +266,11 @@ class IPAMManager(object):
         pass
 
     @abc.abstractmethod
-    def allocate_ip(self, context, host, ip):
+    def delete_subnets_by_network(self, context, network_id):
+        pass
+
+    @abc.abstractmethod
+    def get_subnet_by_id(self, context, subnet_id):
         """Called on port create event. Incapsulates logic associated with IP
         allocation process.
         :param host: host/port which needs IP to be allocated

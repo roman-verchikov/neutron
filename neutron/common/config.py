@@ -115,9 +115,8 @@ core_opts = [
     cfg.IntOpt('send_events_interval', default=2,
                help=_('Number of seconds between sending events to nova if '
                       'there are any events to send.')),
-    cfg.StrOpt('ipam_driver',
-               default='neutron.ipam.drivers.neutron_ipam.NeutronIPAM',
-               help=_('IPAM driver'))
+    cfg.StrOpt('ipam_driver', default='neutron_ipam',
+               help=_('Name of IPAM (IP address management) driver to use.'))
 ]
 
 core_cli_opts = [
