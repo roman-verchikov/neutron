@@ -473,7 +473,7 @@ class NeutronCorePluginV2(neutron_plugin_base_v2.NeutronPluginBaseV2,
             raise n_exc.InvalidInput(error_message=msg)
         return fixed_ip_set
 
-    def _allocate_fixed_ips(self, context, network, fixed_ips, port=None):
+    def _allocate_fixed_ips(self, context, fixed_ips):
         """Allocate IP addresses according to the configured fixed_ips."""
         ips = []
         for fixed in fixed_ips:
@@ -1620,7 +1620,7 @@ class NeutronIPAMPlugin(NeutronCorePluginV2):
                                                             network)
         n = network['network']
         n['id'] = net['id']
-        self.ipam.create_network(context, n)
+        self.get_ipam_driver.create_network(context, n)
 
         return net
 
