@@ -1589,7 +1589,8 @@ class NeutronIPAMPlugin(NeutronCorePluginV2):
             self._validate_gw_out_of_pools(s["gateway_ip"],
                                            allocation_pools)
 
-        subnet, dhcp_changes = self.get_ipam_driver.update_subnet(context, id, s)
+        subnet, dhcp_changes = self.get_ipam_driver.update_subnet(
+            context, id, s)
 
         result = self._make_subnet_dict(subnet)
         # Keep up with fields that changed
@@ -1632,7 +1633,8 @@ class NeutronIPAMPlugin(NeutronCorePluginV2):
 
         for net in nets:
             if hasattr(net, 'id'):
-                net.update(self.get_ipam_driver.get_additional_network_dict_params(
+                ipam_drv = self.get_ipam_driver
+                net.update(ipam_drv.get_additional_network_dict_params(
                     context, net['id']))
 
         return nets

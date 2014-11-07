@@ -17,6 +17,8 @@
 
 import abc
 
+import six
+
 from neutron.ipam.drivers import neutron_db
 from neutron.openstack.common import log as logging
 
@@ -32,11 +34,11 @@ AUTO_DELETE_PORT_OWNERS = ['network:dhcp']
 LOG = logging.getLogger(__name__)
 
 
+@six.add_metaclass(abc.ABCMeta)
 class DHCPController(neutron_db.NeutronPluginController):
     """Base class for IPAM DHCP controller. Incapsulates logic for handling
     DHCP service related actions.
     """
-
 
     @abc.abstractmethod
     def configure_dhcp(self, context, backend_subnet, dhcp_params):
@@ -100,9 +102,9 @@ class DHCPController(neutron_db.NeutronPluginController):
         pass
 
 
+@six.add_metaclass(abc.ABCMeta)
 class DNSController(neutron_db.NeutronPluginController):
     """Incapsulates DNS related logic"""
-    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def bind_names(self, context, backend_port):
@@ -138,15 +140,16 @@ class DNSController(neutron_db.NeutronPluginController):
     def disassociate_floatingip(self, context, floatingip, port_id):
         """Called when floating IP gets disassociated from port
         :param floatingip: l3_db.FloatingIP object to be disassociated
-        :param port_id: UUID of a port being disassociated"""
+        :param port_id: UUID of a port being disassociated
+        """
         pass
 
 
+@six.add_metaclass(abc.ABCMeta)
 class IPAMController(neutron_db.NeutronPluginController):
     """IP address management controller. Operates with higher-level entities
     like networks, subnets and ports
     """
-    __meta__ = abc.ABCMeta
 
     @abc.abstractmethod
     def create_subnet(self, context, subnet):
@@ -224,6 +227,7 @@ class IPAMController(neutron_db.NeutronPluginController):
         pass
 
 
+@six.add_metaclass(abc.ABCMeta)
 class IPAMManager(object):
     """IPAM subsystem manager class which controls IPAM by calling DCHP, DNS
     and IPAM controller methods
@@ -254,11 +258,7 @@ class IPAMManager(object):
         pass
 
     @abc.abstractmethod
-    def delete_subnets_by_network(self, context, network_id):
-        pass
-
-    @abc.abstractmethod
-    def get_subnet_by_id(self, context, subnet_id):
+    def allocate_ip(self, context, host, ip):
         """Called on port create event. Incapsulates logic associated with IP
         allocation process.
         :param host: host/port which needs IP to be allocated

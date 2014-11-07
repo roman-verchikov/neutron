@@ -98,7 +98,7 @@ def get_subnets_by_port(context, port_id):
 
     subnet_qry = context.session.query(models_v2.Subnet)
     for allocation in allocs:
-         subnets.append(subnet_qry.filter_by(id=allocation.subnet_id).first())
+        subnets.append(subnet_qry.filter_by(id=allocation.subnet_id).first())
     return subnets
 
 
