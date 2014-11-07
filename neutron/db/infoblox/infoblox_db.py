@@ -89,6 +89,24 @@ def get_subnets_by_network(context, network_id):
     return subnet_qry.filter_by(network_id=network_id).all()
 
 
+def get_subnets_by_port(context, port_id):
+    allocs = (context.session.query(models_v2.IPAllocation).
+              join(models_v2.Port).
+              filter_by(id=port_id)
+              .all())
+    subnets = []
+
+    subnet_qry = context.session.query(models_v2.Subnet)
+    for allocation in allocs:
+        subnets.append(subnet_qry.filter_by(id=allocation.subnet_id).first())
+    return subnets
+
+
+def get_port_by_id(context, port_id):
+    query = context.session.query(models_v2.Port)
+    return query.filter_by(id=port_id).one()
+
+
 def get_network_name(context, subnet):
     q = context.session.query(models_v2.Network)
     net_name = q.join(models_v2.Subnet).filter(

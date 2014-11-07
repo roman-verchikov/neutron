@@ -170,6 +170,9 @@ class Config(object):
                               '{network_name}',
                               '{network_id}']
 
+    DEFINING_ATTRS = ['condition', '_dhcp_members', '_dns_members',
+                      '_net_view', '_dns_view']
+
     def __init__(self, config_dict, context, subnet,
                  member_manager=None):
         if not member_manager:
@@ -204,6 +207,26 @@ class Config(object):
         self.context = context
         self.subnet = subnet
         self.member_manager = member_manager
+
+    def __eq__(self, other):
+        return (isinstance(other, self.__class__) and
+                all(map(lambda attr:
+                        getattr(self, attr) == getattr(other, attr),
+                        self.DEFINING_ATTRS)))
+
+    def __hash__(self):
+        return hash(tuple(self.DEFINING_ATTRS))
+
+    def __repr__(self):
+        values = {
+            'condition': self.condition,
+            'dns_members': self._dns_members,
+            'dhcp_members': self._dhcp_members,
+            'net_view': self._net_view,
+            'dns_view': self._dns_view
+        }
+
+        return "ConditionalConfig({})".format(values)
 
     @property
     def network_view(self):
