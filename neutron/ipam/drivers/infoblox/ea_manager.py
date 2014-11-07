@@ -20,6 +20,7 @@ from neutron.db import models_v2
 from neutron.ipam.drivers.infoblox import connector
 from neutron.ipam.drivers.infoblox import constants as ib_constants
 from neutron.ipam.drivers.infoblox import exceptions
+from neutron.ipam.drivers.infoblox import l2_driver
 from neutron.openstack.common import log as logging
 
 LOG = logging.getLogger(__name__)
@@ -32,7 +33,7 @@ class InfobloxEaManager(object):
     def __init__(self, infoblox_db):
         # Passing this thru constructor to avoid cyclic imports
         self.db = infoblox_db
-        self._network_l2_info_provider = self.db.NetworkL2InfoProvider()
+        self._network_l2_info_provider = l2_driver.L2Info()
 
     def get_extattrs_for_network(self, context, subnet=None, network=None):
         """
