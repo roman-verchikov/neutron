@@ -43,8 +43,6 @@ def get_member(context, map_id, member_type):
     if member:
         return member.member_name
 
-    return None
-
 
 def attach_member(context, map_id, member_name, member_type):
     context.session.add(models.InfobloxMemberMap(map_id=map_id,
@@ -64,12 +62,8 @@ def is_last_subnet(context, subnet_id):
 
 
 def is_network_external(context, network_id):
-    try:
-        context.session.query(external_net_db.ExternalNetwork).filter_by(
-            network_id=network_id).one()
-        return True
-    except exc.NoResultFound:
-        return False
+    query = context.session.query(external_net_db.ExternalNetwork)
+    return query.filter_by(network_id=network_id).count() > 0
 
 
 def delete_ip_allocation(context, network_id, subnet, ip_address):
@@ -117,16 +111,13 @@ def get_network_name(context, subnet):
 
 
 def get_instance_id_by_floating_ip(context, floating_ip_id):
-    try:
-        query = context.session.query(l3_db.FloatingIP, models_v2.Port)
-        query = query.filter(l3_db.FloatingIP.id == floating_ip_id)
-        query = query.filter(models_v2.Port.id
-                             == l3_db.FloatingIP.fixed_port_id)
-        result = query.one()
-    except exc.NoResultFound:
-        return None
+    query = context.session.query(l3_db.FloatingIP, models_v2.Port)
+    query = query.filter(l3_db.FloatingIP.id == floating_ip_id)
+    query = query.filter(models_v2.Port.id == l3_db.FloatingIP.fixed_port_id)
+    result = query.first()
 
-    return result.Port.device_id
+    if result:
+        return result.Port.device_id
 
 
 def get_subnet_dhcp_port_address(context, subnet_id):
@@ -137,17 +128,14 @@ def get_subnet_dhcp_port_address(context, subnet_id):
                  .first())
     if dhcp_port:
         return dhcp_port.ip_address
-    return None
 
 
 def get_network_view(context, network_id):
     query = context.session.query(models.InfobloxNetViews)
-    try:
-        net_view = query.filter_by(network_id=network_id).one()
-    except exc.NoResultFound:
-        return None
+    net_view = query.filter_by(network_id=network_id).first()
 
-    return net_view.network_view
+    if net_view:
+        return net_view.network_view
 
 
 def set_network_view(context, network_view, network_id):
