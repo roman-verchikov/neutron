@@ -27,9 +27,9 @@ class CreateNetViewTask(task.Task):
 
 class CreateNetworkTask(task.Task):
     def execute(self, obj_manip, net_view_name, cidr, nameservers, dhcp_member,
-                gateway_ip, network_extattrs):
+                gateway_ip, network_extattrs, dhcp_trel_ip):
         obj_manip.create_network(net_view_name, cidr, nameservers, dhcp_member,
-                                 gateway_ip, network_extattrs)
+                                 gateway_ip, dhcp_trel_ip, network_extattrs)
 
     def revert(self, obj_manip, net_view_name, cidr, **kwargs):
         obj_manip.delete_network(net_view_name, cidr)
