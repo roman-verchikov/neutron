@@ -89,6 +89,7 @@ class UpdateSubnetTestCase(base.BaseTestCase):
         config_finder = mock.Mock()
         self.ipam = ipam_controller.InfobloxIPAMController(
             self.object_manipulator, config_finder, ip_allocator)
+        self.ipam.ea_manager = mock.Mock()
 
         self.sub_id = 'fake-id'
         self.new_nameservers = ['new_serv1', 'new_serv2']

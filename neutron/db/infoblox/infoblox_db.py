@@ -13,7 +13,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from oslo.config import cfg
 from sqlalchemy.orm import exc
 
 from neutron.db import external_net_db
@@ -147,40 +146,6 @@ def set_network_view(context, network_view, network_id):
     obj = query.filter_by(network_id=network_id).first()
     if not obj:
         context.session.add(ib_net_view)
-
-
-class NetworkL2InfoProvider(object):
-    def __init__(self, plugin=None):
-        """plugin - OpenStack core plugin
-        This class is nessesary for providing information
-        about network_type, physical_network and segmentation_id
-        for each core plugin
-        """
-        if not plugin:
-            self.plugin = cfg.CONF.core_plugin
-        else:
-            self.plugin = plugin
-
-    def get_network_l2_info(self, session, network_id):
-        segments = None
-        l2_info = {'network_type': None,
-                   'segmentation_id': None,
-                   'physical_network': None}
-
-        if self.plugin == 'neutron.plugins.ml2.plugin.Ml2Plugin':
-            from neutron.plugins.ml2 import db as ml2_db
-
-            segments = ml2_db.get_network_segments(session, network_id)[0]
-        elif self.plugin == 'neutron.plugins.openvswitch.' \
-                            'ovs_neutron_plugin.OVSNeutronPluginV2':
-            from neutron.plugins.openvswitch import ovs_db_v2
-            segments = ovs_db_v2.get_network_binding(session, network_id)
-
-        if segments:
-            for name, value in segments.iteritems():
-                l2_info[name] = value
-
-        return l2_info
 
 
 def add_management_ip(context, network_id, fixed_address):
