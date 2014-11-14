@@ -32,7 +32,7 @@ class L2InfoTestCase(base.BaseTestCase):
         self.assertEqual(None, l2info.driver)
         l2info._get_driver()
         self.assertEqual(
-            'Facade', l2info.driver.__class__.__name__,
+            'Driver', l2info.driver.__class__.__name__,
             'Verify driver variable is set after driver loading')
 
     def test_get_l2_info(self):
@@ -61,11 +61,11 @@ class L2DriverFactoryTestCase(base.BaseTestCase):
         facade = l2_driver.L2DriverFactory.load('ml2')
         self.assertEqual('neutron.ipam.drivers.infoblox.l2_drivers.ml2',
                          facade.__module__)
-        self.assertEqual('Facade', facade.__class__.__name__)
+        self.assertEqual('Driver', facade.__class__.__name__)
 
     def test_load_ovs_driver(self):
         facade = l2_driver.L2DriverFactory.load('openvswitch')
         self.assertEqual(
             'neutron.ipam.drivers.infoblox.l2_drivers.openvswitch',
             facade.__module__)
-        self.assertEqual('Facade', facade.__class__.__name__)
+        self.assertEqual('Driver', facade.__class__.__name__)

@@ -15,6 +15,7 @@
 
 import abc
 import re
+import six
 
 from oslo.config import cfg
 
@@ -24,17 +25,18 @@ from neutron.openstack.common import log as logging
 LOG = logging.getLogger(__name__)
 
 
+@six.add_metaclass(abc.ABCMeta)
 class L2DriverBase(object):
     """ Defines interface for retreiving info from L2 pluings.
     L2 Driver should:
-       - be located under 'l2_facades' directory;
+       - be located under 'l2_drivers' directory;
        - have name {core_plugin_name}.py;
-       - have class name 'Facade';
-       - inherit this class;
+       - have class name 'Driver';
+       - be inherited from this class;
        - implement methods which are marked as abstractmethods;
     """
     @abc.abstractmethod
-    def init_l2(self):
+    def init_driver(self):
         """ Should be implemented in driver for L2 plugin.
         This method should import needed L2 plugin and
         store reference to it somewhere in self.
@@ -54,7 +56,7 @@ class L2DriverBase(object):
         """ No need to override this in child.
         Just inits L2 modules for now.
         """
-        self.init_l2()
+        self.init_driver()
 
 
 class L2Info(object):
@@ -111,7 +113,7 @@ class L2DriverFactory(object):
         """ Loads driver for core_plugin
         """
         driver_prefix = 'neutron.ipam.drivers.infoblox.l2_drivers.'
-        driver_postfix = '.Facade'
+        driver_postfix = '.Driver'
         # Look for infoblox driver for core plugin
         plugin_name = cls.get_plugin_name(core_plugin)
         driver = driver_prefix + plugin_name + driver_postfix

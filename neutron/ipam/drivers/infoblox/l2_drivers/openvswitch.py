@@ -16,8 +16,8 @@
 from neutron.ipam.drivers.infoblox import l2_driver
 
 
-class Facade(l2_driver.L2DriverBase):
-    def init_l2(self):
+class Driver(l2_driver.L2DriverBase):
+    def init_driver(self):
         from neutron.plugins.openvswitch import ovs_db_v2 as db
         self.db = db
 
