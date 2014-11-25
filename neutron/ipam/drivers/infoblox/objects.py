@@ -12,6 +12,7 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+import six
 import socket
 
 import neutron.ipam.drivers.infoblox.exceptions as ib_exc
@@ -159,7 +160,60 @@ class IPAllocationObject(object):
     @staticmethod
     def next_available_ip_from_range(net_view_name, first_ip, last_ip):
         return ('func:nextavailableip:'
-                '{first_ip:}-{last_ip:s},{net_view_name:s}').format(**locals())
+                '{first_ip}-{last_ip},{net_view_name}').format(**locals())
+
+
+class IPv4(object):
+    def __init__(self, ip=None, mac=None):
+        self.ip = ip
+        self.mac = mac
+        self.configure_for_dhcp = True
+        self.hostname = None
+        self.dns_zone = None
+        self.fqdn = None
+
+    def __eq__(self, other):
+        if isinstance(other, six.string_types):
+            return self.ip == other
+        elif isinstance(other, self.__class__):
+            return self.ip == other.ip and self.dns_zone == other.dns_zone
+
+        return False
+
+    def to_dict(self, add_host=False):
+        d = {
+            "ipv4addr": self.ip,
+            "configure_for_dhcp": self.configure_for_dhcp
+        }
+
+        if self.fqdn and add_host:
+            d['host'] = self.fqdn
+
+        if self.mac:
+            d['mac'] = self.mac
+
+        return d
+
+    def __repr__(self):
+        return 'IPv4Addr({})'.format(self.to_dict())
+
+    @staticmethod
+    def from_dict(d):
+        ipv4obj = IPv4()
+        ip = d.get('ipv4addr')
+        if not is_valid_ip(ip):
+            raise ib_exc.InfobloxInvalidIp(ip=ip)
+
+        host = d.get('host', 'unknown.unknown')
+        hostname, _, dns_zone = host.partition('.')
+        ipv4obj.ip = ip
+        ipv4obj.mac = d.get('mac')
+        ipv4obj.configure_for_dhcp = d.get('configure_for_dhcp')
+        ipv4obj.hostname = hostname
+        ipv4obj.zone_auth = dns_zone
+        ipv4obj.fqdn = host
+
+        return ipv4obj
 
 
 class HostRecordIPv4(IPAllocationObject):
@@ -184,25 +238,68 @@ class HostRecordIPv4(IPAllocationObject):
     """
     def __init__(self):
         self.infoblox_type = 'record:host'
-        self.hostname = None
-        self._zone_auth = None
-        self.mac = None
-        self.ip = None
-        self.dns_view = None
+        self.ips = []
         self.ref = None
+        self.name = None
+        self.dns_view = None
 
     def __repr__(self):
-        return "{}".format(self.to_dict())
+        return "HostRecord({})".format(self.to_dict())
+
+    def __eq__(self, other):
+        return (isinstance(other, self.__class__) and
+                self.ips == other.ips and
+                self.name == other.name and
+                self.dns_view == other.dns_view)
+
+    @property
+    def ip(self):
+        if self.ips:
+            return self.ips[0].ip
+
+    @ip.setter
+    def ip(self, ip_address):
+        if self.ips:
+            self.ips[0].ip = ip_address
+        else:
+            ip_obj = IPv4()
+            ip_obj.ip = ip_address
+
+            self.ips.append(ip_obj)
+
+    @property
+    def mac(self):
+        if self.ips:
+            return self.ips[0].mac
+
+    @mac.setter
+    def mac(self, mac_address):
+        if self.ips:
+            self.ips[0].mac = mac_address
+        else:
+            ip_obj = IPv4()
+            ip_obj.mac = mac_address
+            self.ips.append(ip_obj)
+
+    @property
+    def hostname(self):
+        if self.ips:
+            return self.ips[0].hostname
+
+    @hostname.setter
+    def hostname(self, name):
+        if self.ips:
+            self.ips[0].hostname = name
+        else:
+            ip_obj = IPv4()
+            ip_obj.hostname = name
+            self.ips.append(ip_obj)
 
     def to_dict(self):
         return {
             'view': self.dns_view,
             'name': '.'.join([self.hostname, self.zone_auth]),
-            'ipv4addrs': [{
-                    'mac': self.mac,
-                    'configure_for_dhcp': True,
-                    'ipv4addr': self.ip}
-            ]
+            'ipv4addrs': [ip.to_dict() for ip in self.ips]
         }
 
     return_fields = [
@@ -215,32 +312,26 @@ class HostRecordIPv4(IPAllocationObject):
         if not ipv4addrs:
             raise ib_exc.HostRecordNoIPv4Addrs()
 
-        ipv4addr = ipv4addrs[0]
-        ip = ipv4addr['ipv4addr']
-        if not is_valid_ip(ip):
-            raise ib_exc.InfobloxInvalidIp(ip=ip)
-
-        host = ipv4addr.get('host', 'unknown.unknown')
+        host = hr_dict.get('host', 'unknown.unknown')
         hostname, _, dns_zone = host.partition('.')
-        mac = ipv4addr.get('mac')
 
         host_record = HostRecordIPv4()
         host_record.hostname = hostname
         host_record.zone_auth = dns_zone
-        host_record.mac = mac
-        host_record.ip = ip
         host_record.ref = hr_dict.get('_ref')
+        host_record.ips = [IPv4.from_dict(ip) for ip in ipv4addrs]
 
         return host_record
 
     @property
     def zone_auth(self):
-        return self._zone_auth
+        if self.ips:
+            return self.ips[0].zone_auth
 
     @zone_auth.setter
     def zone_auth(self, value):
         if value:
-            self._zone_auth = value.lstrip('.')
+            self.ips[0].zone_auth = value.lstrip('.')
 
 
 class FixedAddress(IPAllocationObject):

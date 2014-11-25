@@ -1632,10 +1632,9 @@ class NeutronIPAMPlugin(NeutronCorePluginV2):
             context, filters, fields, sorts, limit, marker, page_reverse)
 
         for net in nets:
-            if hasattr(net, 'id'):
-                ipam_drv = self.get_ipam_driver
-                net.update(ipam_drv.get_additional_network_dict_params(
-                    context, net['id']))
+            ipam_drv = self.get_ipam_driver
+            net.update(ipam_drv.get_additional_network_dict_params(
+                context, net['id']))
 
         return nets
 
